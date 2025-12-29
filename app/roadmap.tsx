@@ -99,7 +99,7 @@ const initialNodes: Node<TopicData>[] = [
     data: {
       title: "Simple Intervals",
       subtitle: "2nds, 3rds, 4ths",
-      status: "locked",
+      status: "unlocked", // Changed from locked to unlocked
     },
   },
   {
@@ -109,7 +109,7 @@ const initialNodes: Node<TopicData>[] = [
     data: {
       title: "Compound Intervals",
       subtitle: "9ths, 11ths, 13ths",
-      status: "locked",
+      status: "unlocked", // Changed from locked to unlocked
     },
   },
 ];

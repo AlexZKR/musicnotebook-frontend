@@ -5,45 +5,27 @@ export const INTERVALS_LESSON: BlockData[] = [
     id: "int-intro",
     type: "text",
     content:
-      "# Understanding Intervals 📏\n\nAn **Interval** is simply the distance in pitch between two notes.\n\nThe smallest interval in Western music is the **Semitone** (or Half Step).\n\n### Naming Intervals\nWe name intervals by counting the lines and spaces on the staff between the two notes (inclusive).",
+      "# Introduction to Intervals 📏\n\nAn **Interval** is the distance in pitch between two notes.\n\nIntervals are the building blocks of melody and harmony. Understanding them is crucial for everything from identifying chords to writing catchy tunes.",
   },
   {
-    id: "int-demo-1",
-    type: "music",
-    content: `T: Seconds and Thirds
-M: 4/4
-L: 1/4
-K: C
-"2nd" [C D]2 "3rd" [C E]2 "4th" [C F]2 "5th" [C G]2 |]`,
-  },
-  {
-    id: "int-thirds",
+    id: "int-semitone",
     type: "text",
     content:
-      "### Major vs. Minor Thirds\n\nThe quality of an interval changes the mood. A **Major 3rd** (4 semitones) sounds happy, while a **Minor 3rd** (3 semitones) sounds sad.\n\n**Experiment:**\nIn the block below, the first chord is a Major 3rd (C to E). Change the `E` to `_E` (E flat) to hear a Minor 3rd.",
+      "### The Basic Unit: Semitone\n\nThe smallest interval in Western music is the **Semitone** (or Half Step). \n- On a piano, it's the distance to the immediate next key (black or white).\n- On a guitar, it's one fret.",
   },
   {
-    id: "int-practice",
+    id: "int-demo-basic",
     type: "music",
-    content: `T: Major vs Minor
-M: 4/4
-L: 1/2
-K: C
-[C E] [C _E] |]`,
-  },
-  {
-    id: "int-challenge",
-    type: "text",
-    content:
-      "### Challenge\n\nCan you create a **Perfect 5th**? It is 7 semitones (e.g., C to G). Try writing it below!",
-  },
-  {
-    id: "int-challenge-block",
-    type: "music",
-    content: `T: Perfect 5th Challenge
+    content: `T: A Simple Interval
 M: 4/4
 L: 1/1
 K: C
-C G |]`,
+"Interval" [C D] |]`,
+  },
+  {
+    id: "int-structure",
+    type: "text",
+    content:
+      "### How we will learn this\n\nThere are many intervals to learn! We have broken them down into two main categories in the roadmap:\n\n1. **Simple Intervals**: Intervals within an octave (Unison to Octave).\n2. **Compound Intervals**: Intervals larger than an octave (9ths, 11ths, etc.).\n\n**Please go back to the roadmap and select 'Simple Intervals' to begin your deep dive!**",
   },
 ];

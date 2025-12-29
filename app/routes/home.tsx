@@ -4,6 +4,8 @@ import Notebook, { type BlockData } from "~/notebook";
 import Roadmap from "~/roadmap";
 import { MUSICAL_NOTATION_LESSON } from "~/demo-notes/musicalNotaionLesson";
 import { INTERVALS_LESSON } from "~/demo-notes/musicalIntervalsLesson";
+import { SIMPLE_INTERVALS_LESSON } from "~/demo-notes/simpleIntervalsLesson";
+import { COMPOUND_INTERVALS_LESSON } from "~/demo-notes/compoundIntervalsLesson";
 import { TUTORIAL_CONTENT } from "~/demo-notes/tutorialContent";
 
 export function meta({}: Route.MetaArgs) {
@@ -30,6 +32,10 @@ export default function Home() {
       setActiveBlocks(MUSICAL_NOTATION_LESSON);
     } else if (nodeId === "2") {
       setActiveBlocks(INTERVALS_LESSON);
+    } else if (nodeId === "2-1") {
+      setActiveBlocks(SIMPLE_INTERVALS_LESSON);
+    } else if (nodeId === "2-2") {
+      setActiveBlocks(COMPOUND_INTERVALS_LESSON);
     } else {
       // Fallback for nodes without content yet
       setActiveBlocks(undefined);
