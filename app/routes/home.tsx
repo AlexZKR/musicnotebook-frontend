@@ -1,16 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import type { Route } from "./+types/home";
 import Notebook, { type BlockData } from "~/notebook";
 import Roadmap, { type TopicData } from "~/roadmap";
 import { useNodesState, type Node } from "@xyflow/react";
 import confetti from "canvas-confetti";
+import { useProgress } from "~/context/ProgressContext";
 
 import { MUSICAL_NOTATION_LESSON } from "~/demo-notes/musicalNotaionLesson";
 import { INTERVALS_LESSON } from "~/demo-notes/musicalIntervalsLesson";
 import { SIMPLE_INTERVALS_LESSON } from "~/demo-notes/simpleIntervalsLesson";
 import { COMPOUND_INTERVALS_LESSON } from "~/demo-notes/compoundIntervalsLesson";
 import { TUTORIAL_CONTENT } from "~/demo-notes/tutorialContent";
-import { initialNodes } from "~/demo-notes/initialRoadmap";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -21,6 +21,50 @@ export function meta({}: Route.MetaArgs) {
 
 type ViewState = "home" | "learning-path" | "about" | "notebook";
 
+// Initial Layout - Statuses will be overwritten by Context
+const initialNodes: Node<TopicData>[] = [
+  {
+    id: "1",
+    type: "topic",
+    position: { x: 250, y: 0 },
+    data: {
+      title: "Musical Notation",
+      subtitle: "Staff, Clefs & Notes",
+      status: "unlocked",
+    },
+  },
+  {
+    id: "2",
+    type: "topic",
+    position: { x: 250, y: 150 },
+    data: {
+      title: "Intervals",
+      subtitle: "Distance between notes",
+      status: "locked",
+    },
+  },
+  {
+    id: "2-1",
+    type: "topic",
+    position: { x: 100, y: 300 },
+    data: {
+      title: "Simple Intervals",
+      subtitle: "2nds, 3rds, 4ths",
+      status: "locked",
+    },
+  },
+  {
+    id: "2-2",
+    type: "topic",
+    position: { x: 400, y: 300 },
+    data: {
+      title: "Compound Intervals",
+      subtitle: "9ths, 11ths, 13ths",
+      status: "locked",
+    },
+  },
+];
+
 export default function Home() {
   const [view, setView] = useState<ViewState>("home");
   const [currentTopic, setCurrentTopic] = useState<string | null>(null);
@@ -29,8 +73,24 @@ export default function Home() {
     undefined
   );
 
+  // --- Context Hook ---
+  const { completedNodes, markAsCompleted, getNodeStatus } = useProgress();
+
   // Controlled Nodes State
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+
+  // --- Sync Nodes with Progress Context ---
+  useEffect(() => {
+    setNodes((nds) =>
+      nds.map((node) => ({
+        ...node,
+        data: {
+          ...node.data,
+          status: getNodeStatus(node.id),
+        },
+      }))
+    );
+  }, [completedNodes, getNodeStatus, setNodes]);
 
   const handleNodeClick = (nodeId: string, title: string) => {
     setCurrentTopic(title);
@@ -77,7 +137,7 @@ export default function Home() {
         angle: 60,
         spread: 55,
         origin: { x: 0 },
-        colors: ["#60a5fa", "#34d399", "#f472b6"], // Blue, Green, Pink
+        colors: ["#60a5fa", "#34d399", "#f472b6"],
       });
       confetti({
         particleCount: 3,
@@ -93,8 +153,12 @@ export default function Home() {
     };
     frame();
 
-    // 2. Update Node Status
+    // 2. Update Context (Mark as Done)
     if (currentNodeId) {
+      markAsCompleted(currentNodeId);
+
+      // 3. Trigger Local Animation (Just Completed)
+      // We manually override the status briefly for the animation before the Context sync takes over fully
       setNodes((nds) =>
         nds.map((node) => {
           if (node.id === currentNodeId) {
@@ -103,7 +167,7 @@ export default function Home() {
               data: {
                 ...node.data,
                 status: "completed",
-                justCompleted: true, // Trigger CSS animation in roadmap
+                justCompleted: true,
               },
             };
           }
@@ -111,7 +175,7 @@ export default function Home() {
         })
       );
 
-      // 3. Remove "justCompleted" flag after animation
+      // Remove "justCompleted" flag after animation
       setTimeout(() => {
         setNodes((nds) =>
           nds.map((node) => {
