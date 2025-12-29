@@ -81,6 +81,36 @@ const UnlockIcon = () => (
   </svg>
 );
 
+const ChevronDownIcon = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M6 9l6 6 6-6" />
+  </svg>
+);
+
+const ChevronRightIcon = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M9 18l6-6-6-6" />
+  </svg>
+);
+
 // --- Helper: Extract Title ---
 const getBlockTitle = (block: BlockData) => {
   let title = "Untitled Block";
@@ -195,6 +225,8 @@ function SortableBlockWrapper({
 
 // --- Table of Contents Component ---
 function TableOfContents({ blocks }: { blocks: BlockData[] }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   const scrollToBlock = (id: string) => {
     const el = document.getElementById(`block-${id}`);
     if (el) {
@@ -203,29 +235,42 @@ function TableOfContents({ blocks }: { blocks: BlockData[] }) {
   };
 
   return (
-    <div className="hidden xl:block w-96 flex-shrink-0">
-      <div className="sticky top-24 bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm max-h-[calc(100vh-8rem)] overflow-y-auto">
-        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 px-2">
-          Contents
-        </h3>
-        <ul className="space-y-1">
-          {blocks.map((block, index) => (
-            <li key={block.id}>
-              <button
-                onClick={() => scrollToBlock(block.id)}
-                className="w-full text-left px-2 py-1.5 rounded-md text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors flex items-center gap-2 group"
-              >
-                <span className="opacity-70 group-hover:opacity-100 flex-shrink-0 w-6 font-mono text-xs text-gray-400 group-hover:text-gray-600">
-                  {index + 1}.
-                </span>
-                <span className="opacity-70 group-hover:opacity-100 flex-shrink-0 w-5">
-                  {block.type === "music" ? "🎵" : "📝"}
-                </span>
-                <span className="truncate">{getBlockTitle(block)}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
+    <div className="w-96 shrink-0">
+      <div className="sticky top-24 bg-gray-50 border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+        {/* Toggle Header */}
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="w-full flex items-center justify-between p-4 text-xs font-bold text-gray-500 uppercase tracking-wider hover:bg-gray-100 transition-colors"
+        >
+          <span>Contents</span>
+          {isExpanded ? <ChevronDownIcon /> : <ChevronRightIcon />}
+        </button>
+
+        {/* Collapsible List */}
+        <div
+          className={`transition-all duration-300 ease-in-out overflow-hidden ${
+            isExpanded ? "max-h-[80vh] opacity-100" : "max-h-0 opacity-0"
+          }`}
+        >
+          <ul className="space-y-1 p-2 border-t border-gray-100 overflow-y-auto max-h-[calc(80vh-40px)]">
+            {blocks.map((block, index) => (
+              <li key={block.id}>
+                <button
+                  onClick={() => scrollToBlock(block.id)}
+                  className="w-full text-left px-2 py-1.5 rounded-md text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors flex items-center gap-2 group"
+                >
+                  <span className="opacity-70 group-hover:opacity-100 flex-shrink-0 w-6 font-mono text-xs text-gray-400 group-hover:text-gray-600">
+                    {index + 1}.
+                  </span>
+                  <span className="opacity-70 group-hover:opacity-100 flex-shrink-0 w-5">
+                    {block.type === "music" ? "🎵" : "📝"}
+                  </span>
+                  <span className="truncate">{getBlockTitle(block)}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   );
@@ -299,17 +344,15 @@ export default function Notebook({ initialBlocks, onComplete }: NotebookProps) {
   const areAllLocked = blocks.every((b) => b.isLocked);
 
   return (
-    <div className="max-w-[1400px] mx-auto p-4 md:p-8 pb-32">
-      <div className="flex gap-8 lg:gap-12 relative">
-        {/* Sidebar Column (Left) - Using sticky positioning relative to viewport */}
-        <div className="hidden xl:block w-96 flex-shrink-0 relative">
-          <div className="sticky top-24">
-            <TableOfContents blocks={blocks} />
-          </div>
+    <div className="w-full pb-32 relative">
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_768px_minmax(0,1fr)] gap-8">
+        {/* Left Column - Table of Contents */}
+        <div className="hidden xl:flex justify-end pr-4">
+          <TableOfContents blocks={blocks} />
         </div>
 
-        {/* Main Content Column */}
-        <div className="flex-grow min-w-0">
+        {/* Center Column - Main Notebook Content */}
+        <div className="p-4 md:p-8">
           {/* Complete Button */}
           {onComplete && (
             <div className="flex justify-end mb-8">
@@ -360,6 +403,9 @@ export default function Notebook({ initialBlocks, onComplete }: NotebookProps) {
             </SortableContext>
           </DndContext>
         </div>
+
+        {/* Right Column - Empty for balance */}
+        <div className="hidden xl:block"></div>
       </div>
 
       {/* Floating Toolbar */}
