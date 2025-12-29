@@ -87,13 +87,13 @@ const TextBlock = ({
     >
       {/* Delete Button (Visible on hover when not editing AND unlocked) */}
       {!isEditing && !isLocked && (
-        <div className="absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute top-2 right-2 z-20 opacity-70 md:opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={(e) => {
               e.stopPropagation();
               onDelete();
             }}
-            className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors touch-manipulation"
             title="Delete Block"
           >
             <svg
@@ -132,7 +132,7 @@ const TextBlock = ({
             setIsEditing(true);
           }}
           data-color-mode="light"
-          className={`p-4 prose prose-slate max-w-none min-h-[3rem] text-gray-900 ${
+          className={`p-3 sm:p-4 prose prose-sm sm:prose-slate max-w-none min-h-[3rem] text-gray-900 ${
             !isLocked ? "min-h-[6rem]" : ""
           }`}
         >

@@ -529,10 +529,10 @@ const MusicBlock = ({
 
       {/* Delete Button (Only visible on hover AND unlocked) */}
       {!isLocked && (
-        <div className="absolute top-2 left-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute top-2 left-2 z-10 opacity-70 md:opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={onDelete}
-            className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors touch-manipulation"
             title="Delete Block"
           >
             <svg
@@ -554,13 +554,13 @@ const MusicBlock = ({
 
       <div className="flex flex-col">
         {/* Preview Side */}
-        <div className="w-full p-4 flex flex-col justify-between bg-white">
+        <div className="w-full p-3 sm:p-4 flex flex-col justify-between bg-white">
           {/* HEADER ROW: Info & Buttons */}
-          <div className="flex flex-wrap justify-between items-start mb-4 gap-4 pl-8 min-h-[3rem]">
+          <div className="flex flex-wrap justify-between items-start mb-3 sm:mb-4 gap-2 sm:gap-4 pl-8 min-h-[3rem]">
             {/* LEFT: Info Display */}
             <div className="flex flex-col gap-1 justify-center">
               {!isLocked && (
-                <p className="text-xs text-gray-400">
+                <p className="text-[10px] sm:text-xs text-gray-400">
                   {isDraggingEnabled
                     ? "Click any note to play it. Drag notes up or down to change their pitch."
                     : "Click notes to highlight them in the code editor."}
@@ -597,11 +597,11 @@ const MusicBlock = ({
 
             {/* RIGHT: Control Icons (HIDDEN IF LOCKED) */}
             {!isLocked && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 sm:gap-2">
                 <div className="relative group/tooltip">
                   <button
                     onClick={() => setIsDraggingEnabled(!isDraggingEnabled)}
-                    className={`p-2 rounded-md transition-all ${
+                    className={`p-2 rounded-md transition-all touch-manipulation ${
                       isDraggingEnabled
                         ? "bg-blue-100 text-blue-700 hover:bg-blue-200"
                         : "bg-gray-100 text-gray-500 hover:bg-gray-200"
@@ -614,7 +614,7 @@ const MusicBlock = ({
                   >
                     {isDraggingEnabled ? <DragIcon /> : <DragOffIcon />}
                   </button>
-                  <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 px-2 py-1 text-[10px] text-white bg-gray-800 rounded opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+                  <div className="hidden md:block absolute top-full mt-2 left-1/2 -translate-x-1/2 px-2 py-1 text-[10px] text-white bg-gray-800 rounded opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
                     {isDraggingEnabled
                       ? "Pitch Dragging Active"
                       : "Pitch Dragging Disabled"}
@@ -624,7 +624,7 @@ const MusicBlock = ({
                 <div className="relative group/tooltip">
                   <button
                     onClick={() => setIsEditing(!isEditing)}
-                    className={`p-2 rounded-md transition-all ${
+                    className={`p-2 rounded-md transition-all touch-manipulation ${
                       isEditing
                         ? "bg-gray-800 text-white hover:bg-gray-700"
                         : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-blue-600"
@@ -635,7 +635,7 @@ const MusicBlock = ({
                   >
                     {isEditing ? <CloseIcon /> : <EditIcon />}
                   </button>
-                  <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 px-2 py-1 text-[10px] text-white bg-gray-800 rounded opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+                  <div className="hidden md:block absolute top-full mt-2 left-1/2 -translate-x-1/2 px-2 py-1 text-[10px] text-white bg-gray-800 rounded opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
                     {isEditing ? "Close Editor" : "Edit Source Code"}
                   </div>
                 </div>
@@ -657,14 +657,14 @@ const MusicBlock = ({
 
         {/* Editor Side (Only if unlocked and editing active) */}
         {isEditing && !isLocked && (
-          <div className="w-full p-4 border-t border-gray-100 bg-gray-50 animate-in slide-in-from-top-2 fade-in duration-200">
+          <div className="w-full p-3 sm:p-4 border-t border-gray-100 bg-gray-50 animate-in slide-in-from-top-2 fade-in duration-200">
             <h3 className="text-xs font-bold text-gray-500 uppercase mb-2 tracking-wider">
               ABC Notation Editor
             </h3>
 
-            <div className="relative w-full h-48 border border-gray-300 rounded bg-white overflow-hidden">
+            <div className="relative w-full h-48 sm:h-56 border border-gray-300 rounded bg-white overflow-hidden">
               <div
-                className="absolute inset-0 p-2 font-mono text-sm whitespace-pre-wrap break-words pointer-events-none text-gray-900"
+                className="absolute inset-0 p-2 font-mono text-xs sm:text-sm whitespace-pre-wrap break-words pointer-events-none text-gray-900"
                 aria-hidden="true"
               >
                 {renderBackdrop()}
@@ -677,11 +677,11 @@ const MusicBlock = ({
                   setHighlight(null);
                   setNoteInfo(null);
                 }}
-                className="absolute inset-0 w-full h-full p-2 font-mono text-sm bg-transparent text-transparent caret-black focus:outline-none resize-none z-10"
+                className="absolute inset-0 w-full h-full p-2 font-mono text-xs sm:text-sm bg-transparent text-transparent caret-black focus:outline-none resize-none z-10"
                 spellCheck="false"
               />
             </div>
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-[10px] sm:text-xs text-gray-500 mt-2">
               Tip: Drag notes on the staff to see the code update in real-time.
             </p>
           </div>

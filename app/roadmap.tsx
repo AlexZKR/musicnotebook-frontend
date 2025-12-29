@@ -33,7 +33,7 @@ const TopicNode = ({ data, isConnectable }: NodeProps<Node<TopicData>>) => {
 
   return (
     <div
-      className={`px-4 py-3 rounded-xl border-2 min-w-[200px] transition-all duration-700 ${
+      className={`px-3 py-2 sm:px-4 sm:py-3 rounded-xl border-2 min-w-[160px] sm:min-w-[200px] transition-all duration-700 ${
         statusColors[data.status as "locked" | "unlocked" | "completed"]
       } ${
         data.justCompleted
@@ -50,14 +50,14 @@ const TopicNode = ({ data, isConnectable }: NodeProps<Node<TopicData>>) => {
 
       <div className="flex flex-col items-center text-center">
         {data.status === "completed" && (
-          <span className="text-xs font-bold text-green-600 mb-1 animate-in fade-in zoom-in duration-500">
+          <span className="text-[10px] sm:text-xs font-bold text-green-600 mb-1 animate-in fade-in zoom-in duration-500">
             ✓ DONE
           </span>
         )}
-        <strong className="text-sm font-bold uppercase tracking-wide">
+        <strong className="text-xs sm:text-sm font-bold uppercase tracking-wide">
           {data.title as string}
         </strong>
-        <span className="text-xs opacity-80 mt-1">
+        <span className="text-[10px] sm:text-xs opacity-80 mt-0.5 sm:mt-1">
           {data.subtitle as string}
         </span>
       </div>
@@ -108,7 +108,7 @@ export default function Roadmap({
   );
 
   return (
-    <div className="w-full h-[80vh] border border-gray-200 rounded-2xl overflow-hidden bg-gray-50 shadow-inner">
+    <div className="w-full h-[80vh] border border-gray-200 rounded-xl sm:rounded-2xl overflow-hidden bg-gray-50 shadow-inner">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -118,9 +118,11 @@ export default function Roadmap({
         onNodeClick={handleNodeClick}
         fitView
         attributionPosition="bottom-left"
+        minZoom={0.5}
+        maxZoom={2}
       >
-        <Controls />
-        <MiniMap zoomable pannable />
+        <Controls className="touch-manipulation" />
+        <MiniMap zoomable pannable className="hidden sm:block" />
         <Background gap={12} size={1} />
       </ReactFlow>
     </div>

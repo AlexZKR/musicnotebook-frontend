@@ -173,15 +173,15 @@ function SortableBlockWrapper({
       ref={setNodeRef}
       style={style}
       id={`block-${id}`} // Add ID for scroll target
-      className="relative flex items-start gap-2 group/sortable mb-8 scroll-mt-24"
+      className="relative flex items-start gap-2 group/sortable mb-8 scroll-mt-28 sm:scroll-mt-32"
     >
       {/* Controls Container (Drag + Lock) */}
-      <div className="mt-4 flex flex-col items-center gap-1 opacity-0 group-hover/sortable:opacity-100 transition-opacity">
+      <div className="mt-4 flex flex-col items-center gap-1 opacity-70 md:opacity-0 group-hover/sortable:opacity-100 transition-opacity">
         {/* Drag Handle */}
         <div
           {...attributes}
           {...listeners}
-          className="p-2 cursor-grab text-gray-300 hover:text-gray-600 active:cursor-grabbing touch-none select-none"
+          className="p-2 cursor-grab text-gray-300 hover:text-gray-600 active:cursor-grabbing select-none touch-manipulation"
           title="Drag to reorder"
         >
           <svg
@@ -235,12 +235,12 @@ function TableOfContents({ blocks }: { blocks: BlockData[] }) {
   };
 
   return (
-    <div className="w-96 shrink-0">
-      <div className="sticky top-24 bg-gray-50 border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+    <div className="w-full xl:w-96 shrink-0">
+      <div className="xl:sticky top-24 bg-gray-50 border border-gray-200 rounded-xl shadow-sm overflow-hidden">
         {/* Toggle Header */}
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full flex items-center justify-between p-4 text-xs font-bold text-gray-500 uppercase tracking-wider hover:bg-gray-100 transition-colors"
+          className="w-full flex items-center justify-between p-4 text-xs font-bold text-gray-500 uppercase tracking-wider hover:bg-gray-100 transition-colors touch-manipulation"
         >
           <span>Contents</span>
           {isExpanded ? <ChevronDownIcon /> : <ChevronRightIcon />}
@@ -256,13 +256,16 @@ function TableOfContents({ blocks }: { blocks: BlockData[] }) {
             {blocks.map((block, index) => (
               <li key={block.id}>
                 <button
-                  onClick={() => scrollToBlock(block.id)}
-                  className="w-full text-left px-2 py-1.5 rounded-md text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors flex items-center gap-2 group"
+                  onClick={() => {
+                    scrollToBlock(block.id);
+                    setIsExpanded(false);
+                  }}
+                  className="w-full text-left px-2 py-1.5 rounded-md text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors flex items-center gap-2 group touch-manipulation"
                 >
-                  <span className="opacity-70 group-hover:opacity-100 flex-shrink-0 w-6 font-mono text-xs text-gray-400 group-hover:text-gray-600">
+                  <span className="opacity-70 group-hover:opacity-100 shrink-0 w-6 font-mono text-xs text-gray-400 group-hover:text-gray-600">
                     {index + 1}.
                   </span>
-                  <span className="opacity-70 group-hover:opacity-100 flex-shrink-0 w-5">
+                  <span className="opacity-70 group-hover:opacity-100 shrink-0 w-5">
                     {block.type === "music" ? "🎵" : "📝"}
                   </span>
                   <span className="truncate">{getBlockTitle(block)}</span>
@@ -345,20 +348,24 @@ export default function Notebook({ initialBlocks, onComplete }: NotebookProps) {
 
   return (
     <div className="w-full pb-32 relative">
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_768px_minmax(0,1fr)] gap-8">
-        {/* Left Column - Table of Contents */}
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_768px_minmax(0,1fr)] gap-4 xl:gap-8">
+        {/* Left Column - Table of Contents (Desktop Only) */}
         <div className="hidden xl:flex justify-end pr-4">
           <TableOfContents blocks={blocks} />
         </div>
 
         {/* Center Column - Main Notebook Content */}
-        <div className="p-4 md:p-8">
+        <div className="px-2 py-4 sm:p-4 md:p-8 max-w-full">
+          {/* Mobile Table of Contents */}
+          <div className="xl:hidden mb-4">
+            <TableOfContents blocks={blocks} />
+          </div>
           {/* Complete Button */}
           {onComplete && (
-            <div className="flex justify-end mb-8">
+            <div className="flex justify-end mb-6 sm:mb-8">
               <button
                 onClick={onComplete}
-                className="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-full font-bold shadow-lg shadow-green-200 transition-all hover:scale-105 active:scale-95"
+                className="flex items-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 bg-green-600 hover:bg-green-700 text-white rounded-full font-bold text-sm sm:text-base shadow-lg shadow-green-200 transition-all hover:scale-105 active:scale-95 touch-manipulation"
               >
                 <span>✅</span> Mark as Done
               </button>
@@ -409,25 +416,29 @@ export default function Notebook({ initialBlocks, onComplete }: NotebookProps) {
       </div>
 
       {/* Floating Toolbar */}
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-white p-2 rounded-full shadow-lg border border-gray-200 z-50">
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 sm:gap-4 bg-white p-2 rounded-full shadow-lg border border-gray-200 z-50 max-w-[calc(100vw-2rem)]">
         <button
           onClick={() => addBlock("text")}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full font-medium transition-colors"
+          className="flex items-center gap-1 sm:gap-2 px-3 py-2 sm:px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full font-medium transition-colors text-sm sm:text-base touch-manipulation"
         >
-          <span>📝</span> Add Text
+          <span>📝</span>
+          <span className="hidden sm:inline">Add Text</span>
+          <span className="sm:hidden">Text</span>
         </button>
         <button
           onClick={() => addBlock("music")}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-full font-medium transition-colors"
+          className="flex items-center gap-1 sm:gap-2 px-3 py-2 sm:px-4 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-full font-medium transition-colors text-sm sm:text-base touch-manipulation"
         >
-          <span>🎵</span> Add Music
+          <span>🎵</span>
+          <span className="hidden sm:inline">Add Music</span>
+          <span className="sm:hidden">Music</span>
         </button>
 
-        <div className="w-px h-6 bg-gray-300 mx-1"></div>
+        <div className="w-px h-6 bg-gray-300 mx-0.5 sm:mx-1"></div>
 
         <button
           onClick={toggleAllLocks}
-          className="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+          className="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors touch-manipulation"
           title={areAllLocked ? "Unlock All Blocks" : "Lock All Blocks"}
         >
           {areAllLocked ? <LockIcon /> : <UnlockIcon />}

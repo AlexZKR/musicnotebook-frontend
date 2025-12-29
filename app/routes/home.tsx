@@ -72,6 +72,7 @@ export default function Home() {
   const [activeBlocks, setActiveBlocks] = useState<BlockData[] | undefined>(
     undefined
   );
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // --- Context Hook ---
   const { completedNodes, markAsCompleted, getNodeStatus } = useProgress();
@@ -204,16 +205,20 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans text-gray-900">
       {/* --- NAVIGATION BAR --- */}
-      <nav className="border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 bg-white/90 backdrop-blur-md z-50 shadow-sm">
+      <nav className="border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between sticky top-0 bg-white/90 backdrop-blur-md z-50 shadow-sm">
         <div
           className="flex items-center gap-2 cursor-pointer group"
-          onClick={() => setView("home")}
+          onClick={() => {
+            setView("home");
+            setMobileMenuOpen(false);
+          }}
         >
-          <div className="bg-blue-600 text-white p-2 rounded-lg font-bold text-lg shadow-blue-200 shadow-lg group-hover:scale-105 transition-transform duration-200">
+          <div className="bg-blue-600 text-white px-2 py-1.5 sm:p-2 rounded-lg font-bold text-base sm:text-lg shadow-blue-200 shadow-lg group-hover:scale-105 transition-transform duration-200">
             Music Notebook
           </div>
         </div>
 
+        {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-8">
           <button
             onClick={() => setView("learning-path")}
@@ -252,7 +257,97 @@ export default function Home() {
             Sign in
           </button>
         </div>
+
+        {/* Mobile Menu Button */}
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="md:hidden p-2 text-gray-600 hover:text-gray-900 touch-manipulation"
+          aria-label="Toggle menu"
+        >
+          {mobileMenuOpen ? (
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          ) : (
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          )}
+        </button>
       </nav>
+
+      {/* Mobile Menu Dropdown */}
+      {mobileMenuOpen && (
+        <div className="md:hidden absolute top-[57px] sm:top-[65px] left-0 right-0 bg-white border-b border-gray-200 shadow-lg z-40 animate-in slide-in-from-top duration-200">
+          <div className="flex flex-col p-4 gap-2">
+            <button
+              onClick={() => {
+                setView("learning-path");
+                setMobileMenuOpen(false);
+              }}
+              className={`text-left px-4 py-3 rounded-lg font-semibold transition-colors touch-manipulation ${
+                view === "learning-path" || view === "notebook"
+                  ? "bg-blue-50 text-blue-600"
+                  : "text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              Learning path
+            </button>
+            <button
+              onClick={() => {
+                setView("home");
+                setMobileMenuOpen(false);
+              }}
+              className={`text-left px-4 py-3 rounded-lg font-semibold transition-colors touch-manipulation ${
+                view === "home"
+                  ? "bg-blue-50 text-blue-600"
+                  : "text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              Home
+            </button>
+            <button
+              onClick={() => {
+                setView("about");
+                setMobileMenuOpen(false);
+              }}
+              className={`text-left px-4 py-3 rounded-lg font-semibold transition-colors touch-manipulation ${
+                view === "about"
+                  ? "bg-blue-50 text-blue-600"
+                  : "text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              About
+            </button>
+            <button
+              onClick={() => {
+                handleSignIn();
+                setMobileMenuOpen(false);
+              }}
+              className="text-left px-4 py-3 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 transition-colors touch-manipulation"
+            >
+              Sign in
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* --- MAIN CONTENT AREA --- */}
       <main className="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full flex flex-col">
