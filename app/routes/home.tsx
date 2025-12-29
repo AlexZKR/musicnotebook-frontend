@@ -416,6 +416,29 @@ export default function Home() {
               </div>
 
               <p>
+                This app uses <strong>ABC Notation</strong> for rendering music.
+                It's a simple, text-based format for music notation. While you
+                don't need to be an expert, knowing the basics helps you create
+                your own exercises.{" "}
+                <button
+                  onClick={handleTutorialClick}
+                  className="text-blue-600 underline font-medium hover:text-blue-800"
+                >
+                  Learn ABC Notation Basics in the Tutorial
+                </button>
+                . For more advanced documentation, visit the{" "}
+                <a
+                  href="https://abcnotation.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline font-medium hover:text-blue-800"
+                >
+                  ABC Notation website
+                </a>
+                .
+              </p>
+
+              <p>
                 Inspired by developer tools like Jupyter Notebooks, our platform
                 allows you to:
               </p>
