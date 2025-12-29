@@ -16,6 +16,7 @@ import "./app.css";
 import { RoadmapDataProvider } from "~/context/RoadmapDataContext";
 import { UserProvider } from "~/context/UserContext";
 import { CssBaseline } from "@mui/material";
+import { ThemeContextProvider } from "./context/ThemeContext";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -40,12 +41,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <CssBaseline />
-        <RoadmapDataProvider>
-          <UserProvider>{children}</UserProvider>
-        </RoadmapDataProvider>
-        <ScrollRestoration />
-        <Scripts />
+        <ThemeContextProvider>
+          <CssBaseline />
+          <RoadmapDataProvider>
+            <UserProvider>{children}</UserProvider>
+          </RoadmapDataProvider>
+          <ScrollRestoration />
+          <Scripts />
+        </ThemeContextProvider>
       </body>
     </html>
   );
