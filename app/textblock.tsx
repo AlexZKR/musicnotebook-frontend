@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
-// We use 'import type' so the server doesn't try to load the actual JS/CSS files
 import type { MDEditorProps } from "@uiw/react-md-editor";
 
 interface TextBlockProps {
   id: string;
   initialContent: string;
+  isLocked: boolean;
   onUpdate: (content: string) => void;
   onDelete: () => void;
 }
@@ -12,6 +12,7 @@ interface TextBlockProps {
 const TextBlock = ({
   id,
   initialContent,
+  isLocked,
   onUpdate,
   onDelete,
 }: TextBlockProps) => {
@@ -19,15 +20,18 @@ const TextBlock = ({
   const [isEditing, setIsEditing] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // We store the loaded library in state.
   const [EditorModule, setEditorModule] = useState<any>(null);
 
   useEffect(() => {
-    // Dynamically load the editor ONLY on the client side
     import("@uiw/react-md-editor").then((mod) => {
       setEditorModule(mod.default);
     });
   }, []);
+
+  // Sync content if it changes externally
+  useEffect(() => {
+    setValue(initialContent);
+  }, [initialContent]);
 
   // Handle clicking outside to exit edit mode
   useEffect(() => {
@@ -55,7 +59,13 @@ const TextBlock = ({
     onUpdate(newVal);
   };
 
-  // While the library is loading, show a simple fallback
+  // If we become locked while editing, force exit edit mode
+  useEffect(() => {
+    if (isLocked && isEditing) {
+      setIsEditing(false);
+    }
+  }, [isLocked, isEditing]);
+
   if (!EditorModule) {
     return (
       <div className="p-4 text-gray-400 animate-pulse">Loading editor...</div>
@@ -70,11 +80,13 @@ const TextBlock = ({
       className={`group relative transition-all duration-200 rounded-md ${
         isEditing
           ? "ring-2 ring-blue-400 shadow-lg z-10"
-          : "hover:bg-gray-50 cursor-text"
+          : isLocked
+            ? "cursor-default border border-transparent" // Visual cue: no border or hover
+            : "hover:bg-gray-50 cursor-text border border-transparent hover:border-gray-200" // Visual cue: unlocked
       }`}
     >
-      {/* Delete Button (Visible on hover when not editing) */}
-      {!isEditing && (
+      {/* Delete Button (Visible on hover when not editing AND unlocked) */}
+      {!isEditing && !isLocked && (
         <div className="absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={(e) => {
@@ -114,10 +126,15 @@ const TextBlock = ({
         </div>
       ) : (
         <div
-          onClick={() => setIsEditing(true)}
-          // Force light mode colors for the viewer to ensure high contrast on white bg
+          onClick={() => {
+            // Strict check to prevent editing when locked
+            if (isLocked) return;
+            setIsEditing(true);
+          }}
           data-color-mode="light"
-          className="p-4 prose prose-slate max-w-none min-h-[3rem] text-gray-900"
+          className={`p-4 prose prose-slate max-w-none min-h-[3rem] text-gray-900 ${
+            !isLocked ? "min-h-[6rem]" : ""
+          }`}
         >
           <MDEditor.Markdown
             source={value}

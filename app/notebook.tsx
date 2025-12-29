@@ -26,6 +26,7 @@ export interface BlockData {
   id: string;
   type: BlockType;
   content: string;
+  isLocked?: boolean;
 }
 
 const DEFAULT_BLOCKS: BlockData[] = [
@@ -33,6 +34,7 @@ const DEFAULT_BLOCKS: BlockData[] = [
     id: "default-1",
     type: "text",
     content: "# New Notebook\n\nStart writing your music theory notes here.",
+    isLocked: true,
   },
   {
     id: "default-2",
@@ -42,15 +44,53 @@ M: 4/4
 L: 1/4
 K: C
 C D E F | G A B c |]`,
+    isLocked: true,
   },
 ];
+
+// --- Icons ---
+const LockIcon = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+  </svg>
+);
+
+const UnlockIcon = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+    <path d="M7 11V7a5 5 0 0 1 9.9-1"></path>
+  </svg>
+);
 
 // --- Sortable Wrapper Component ---
 function SortableBlockWrapper({
   id,
+  isLocked,
+  onToggleLock,
   children,
 }: {
   id: string;
+  isLocked?: boolean;
+  onToggleLock: () => void;
   children: React.ReactNode;
 }) {
   const {
@@ -75,31 +115,47 @@ function SortableBlockWrapper({
       style={style}
       className="relative flex items-start gap-2 group/sortable mb-8"
     >
-      {/* Drag Handle */}
-      <div
-        {...attributes}
-        {...listeners}
-        className="mt-4 p-2 cursor-grab text-gray-300 hover:text-gray-600 active:cursor-grabbing opacity-0 group-hover/sortable:opacity-100 transition-opacity touch-none select-none"
-        title="Drag to reorder"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+      {/* Controls Container (Drag + Lock) */}
+      <div className="mt-4 flex flex-col items-center gap-1 opacity-0 group-hover/sortable:opacity-100 transition-opacity">
+        {/* Drag Handle */}
+        <div
+          {...attributes}
+          {...listeners}
+          className="p-2 cursor-grab text-gray-300 hover:text-gray-600 active:cursor-grabbing touch-none select-none"
+          title="Drag to reorder"
         >
-          <circle cx="9" cy="12" r="1" />
-          <circle cx="9" cy="5" r="1" />
-          <circle cx="9" cy="19" r="1" />
-          <circle cx="15" cy="12" r="1" />
-          <circle cx="15" cy="5" r="1" />
-          <circle cx="15" cy="19" r="1" />
-        </svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="9" cy="12" r="1" />
+            <circle cx="9" cy="5" r="1" />
+            <circle cx="9" cy="19" r="1" />
+            <circle cx="15" cy="12" r="1" />
+            <circle cx="15" cy="5" r="1" />
+            <circle cx="15" cy="19" r="1" />
+          </svg>
+        </div>
+
+        {/* Lock Toggle */}
+        <button
+          onClick={onToggleLock}
+          className={`p-2 rounded-full transition-colors ${
+            isLocked
+              ? "text-gray-400 hover:text-gray-600"
+              : "text-blue-400 hover:text-blue-600 bg-blue-50"
+          }`}
+          title={isLocked ? "Unlock Block" : "Lock Block"}
+        >
+          {isLocked ? <LockIcon /> : <UnlockIcon />}
+        </button>
       </div>
 
       <div className="flex-grow min-w-0">{children}</div>
@@ -109,13 +165,15 @@ function SortableBlockWrapper({
 
 interface NotebookProps {
   initialBlocks?: BlockData[];
-  onComplete?: () => void; // New prop
+  onComplete?: () => void;
 }
 
 export default function Notebook({ initialBlocks, onComplete }: NotebookProps) {
-  const [blocks, setBlocks] = useState<BlockData[]>(
-    initialBlocks || DEFAULT_BLOCKS
-  );
+  // Initialize state with default locking if undefined
+  const [blocks, setBlocks] = useState<BlockData[]>(() => {
+    const rawBlocks = initialBlocks || DEFAULT_BLOCKS;
+    return rawBlocks.map((b) => ({ ...b, isLocked: b.isLocked ?? true }));
+  });
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -144,6 +202,7 @@ export default function Notebook({ initialBlocks, onComplete }: NotebookProps) {
         type === "music"
           ? "T: New Tune\nM: 4/4\nL: 1/4\nK: C\nC D E F | G A B c |]"
           : "**New Section**\n\nClick to edit...",
+      isLocked: false, // New blocks are editable immediately
     };
     setBlocks([...blocks, newBlock]);
   };
@@ -154,13 +213,30 @@ export default function Notebook({ initialBlocks, onComplete }: NotebookProps) {
     );
   };
 
+  const toggleBlockLock = (id: string) => {
+    setBlocks((prev) =>
+      prev.map((b) => (b.id === id ? { ...b, isLocked: !b.isLocked } : b))
+    );
+  };
+
+  const toggleAllLocks = () => {
+    // Check if all are currently locked
+    const allLocked = blocks.every((b) => b.isLocked);
+
+    // If all are locked, unlock all. Otherwise, lock all.
+    setBlocks((prev) => prev.map((b) => ({ ...b, isLocked: !allLocked })));
+  };
+
   const deleteBlock = (id: string) => {
     setBlocks((prev) => prev.filter((b) => b.id !== id));
   };
 
+  // Determine if we should show "Unlock All" or "Lock All" icon
+  const areAllLocked = blocks.every((b) => b.isLocked);
+
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-8 pb-32">
-      {/* Complete Button at the top right */}
+      {/* Complete Button */}
       {onComplete && (
         <div className="flex justify-end mb-8">
           <button
@@ -182,11 +258,17 @@ export default function Notebook({ initialBlocks, onComplete }: NotebookProps) {
           strategy={verticalListSortingStrategy}
         >
           {blocks.map((block) => (
-            <SortableBlockWrapper key={block.id} id={block.id}>
+            <SortableBlockWrapper
+              key={block.id}
+              id={block.id}
+              isLocked={block.isLocked}
+              onToggleLock={() => toggleBlockLock(block.id)}
+            >
               {block.type === "music" ? (
                 <MusicBlock
                   id={block.id}
                   initialContent={block.content}
+                  isLocked={!!block.isLocked}
                   onUpdate={(content) => updateBlock(block.id, content)}
                   onDelete={() => deleteBlock(block.id)}
                 />
@@ -194,6 +276,7 @@ export default function Notebook({ initialBlocks, onComplete }: NotebookProps) {
                 <TextBlock
                   id={block.id}
                   initialContent={block.content}
+                  isLocked={!!block.isLocked}
                   onUpdate={(content) => updateBlock(block.id, content)}
                   onDelete={() => deleteBlock(block.id)}
                 />
@@ -203,7 +286,8 @@ export default function Notebook({ initialBlocks, onComplete }: NotebookProps) {
         </SortableContext>
       </DndContext>
 
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 flex gap-4 bg-white p-2 rounded-full shadow-lg border border-gray-200 z-50">
+      {/* Floating Toolbar */}
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-white p-2 rounded-full shadow-lg border border-gray-200 z-50">
         <button
           onClick={() => addBlock("text")}
           className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full font-medium transition-colors"
@@ -215,6 +299,16 @@ export default function Notebook({ initialBlocks, onComplete }: NotebookProps) {
           className="flex items-center gap-2 px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-full font-medium transition-colors"
         >
           <span>🎵</span> Add Music
+        </button>
+
+        <div className="w-px h-6 bg-gray-300 mx-1"></div>
+
+        <button
+          onClick={toggleAllLocks}
+          className="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+          title={areAllLocked ? "Unlock All Blocks" : "Lock All Blocks"}
+        >
+          {areAllLocked ? <LockIcon /> : <UnlockIcon />}
         </button>
       </div>
     </div>
