@@ -8,7 +8,7 @@ import {
   type Node,
   type OnNodesChange,
 } from "@xyflow/react";
-import { Paper, useTheme } from "@mui/material";
+import { alpha, Paper, useTheme } from "@mui/material";
 import TopicNode from "~/ui/molecules/TopicNode";
 import { useRoadmapData } from "~/context/RoadmapDataContext";
 import type { TopicData } from "~/features/roadmap/model/topic";
@@ -86,10 +86,21 @@ export default function RoadmapGraph({
           className="hidden sm:block"
           style={{
             backgroundColor: theme.palette.background.paper,
+            borderRadius: theme.shape.borderRadius,
+            border: `1px solid ${theme.palette.divider}`,
           }}
           maskColor={
-            mode === "dark" ? "rgba(0, 0, 0, 0.6)" : "rgba(240, 240, 240, 0.6)"
+            mode === "dark"
+              ? alpha(theme.palette.common.black, 0.3)
+              : alpha(theme.palette.common.white, 0.7)
           }
+          nodeColor={(n) => {
+            if (n.data?.status === "completed")
+              return theme.palette.success.main;
+            if (n.data?.status === "unlocked")
+              return theme.palette.primary.main;
+            return theme.palette.divider;
+          }}
         />
         <Background
           gap={12}

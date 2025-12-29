@@ -1,56 +1,97 @@
 import React from "react";
 import { Handle, Position, type Node, type NodeProps } from "@xyflow/react";
-
-import type { TopicData, TopicStatus } from "~/features/roadmap/model/topic";
-
-const STATUS_COLORS: Record<TopicStatus, string> = {
-  locked: "bg-gray-100 border-gray-300 text-gray-400",
-  unlocked:
-    "bg-white border-blue-500 shadow-md text-gray-800 hover:ring-2 ring-blue-200 cursor-pointer",
-  completed: "bg-green-50 border-green-500 shadow-sm text-green-900",
-};
+import { Box, Typography, useTheme, alpha } from "@mui/material"; // Added MUI imports
+import type { TopicData } from "~/features/roadmap/model/topic";
 
 export default function TopicNode({
   data,
   isConnectable,
 }: NodeProps<Node<TopicData>>) {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+
+  const getStyles = () => {
+    switch (data.status) {
+      case "completed":
+        return {
+          bgcolor: isDark
+            ? alpha(theme.palette.success.main, 0.15)
+            : "success.light",
+          borderColor: "success.main",
+          color: isDark
+            ? theme.palette.success.light
+            : theme.palette.success.dark,
+        };
+      case "unlocked":
+        return {
+          bgcolor: "background.paper",
+          borderColor: "primary.main",
+          color: "text.primary",
+          boxShadow: theme.shadows[2],
+        };
+      case "locked":
+      default:
+        return {
+          bgcolor: isDark ? alpha(theme.palette.divider, 0.1) : "grey.100",
+          borderColor: "divider",
+          color: "text.disabled",
+        };
+    }
+  };
+
+  const styles = getStyles();
+
   return (
-    <div
-      className={`px-3 py-2 sm:px-4 sm:py-3 rounded-xl border-2 min-w-[160px] sm:min-w-[200px] transition-all duration-700 ${
-        STATUS_COLORS[data.status]
-      } ${
-        data.justCompleted
-          ? "scale-110 ring-4 ring-green-400 shadow-xl shadow-green-200"
-          : "scale-100"
-      }`}
+    <Box
+      sx={{
+        px: { xs: 2, sm: 3 },
+        py: { xs: 1.5, sm: 2 },
+        borderRadius: 3,
+        border: "2px solid",
+        minWidth: { xs: 160, sm: 200 },
+        transition: "all 0.4s ease-in-out",
+        textAlign: "center",
+        ...styles,
+        // Completion Animation
+        ...(data.justCompleted && {
+          transform: "scale(1.1)",
+          ring: `4px solid ${theme.palette.success.light}`,
+        }),
+      }}
     >
       <Handle
         type="target"
         position={Position.Top}
         isConnectable={isConnectable}
-        className="bg-gray-400! w-3! h-3!"
+        style={{ background: theme.palette.divider, width: 8, height: 8 }}
       />
 
-      <div className="flex flex-col items-center text-center">
+      <Box display="flex" flexDirection="column" alignItems="center">
         {data.status === "completed" && (
-          <span className="text-[10px] sm:text-xs font-bold text-green-600 mb-1 animate-in fade-in zoom-in duration-500">
+          <Typography
+            variant="caption"
+            sx={{ fontWeight: "bold", color: "success.main", mb: 0.5 }}
+          >
             ✓ DONE
-          </span>
+          </Typography>
         )}
-        <strong className="text-xs sm:text-sm font-bold uppercase tracking-wide">
+        <Typography
+          variant="subtitle2"
+          sx={{ fontWeight: 800, textTransform: "uppercase" }}
+        >
           {data.title}
-        </strong>
-        <span className="text-[10px] sm:text-xs opacity-80 mt-0.5 sm:mt-1">
+        </Typography>
+        <Typography variant="caption" sx={{ opacity: 0.7 }}>
           {data.subtitle}
-        </span>
-      </div>
+        </Typography>
+      </Box>
 
       <Handle
         type="source"
         position={Position.Bottom}
         isConnectable={isConnectable}
-        className="bg-gray-400! w-3! h-3!"
+        style={{ background: theme.palette.divider, width: 8, height: 8 }}
       />
-    </div>
+    </Box>
   );
 }
