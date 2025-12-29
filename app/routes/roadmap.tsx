@@ -115,7 +115,6 @@ export default function RoadmapRoute() {
           boxShadow: 1,
         }}
       >
-        {" "}
         <RoadmapGraph
           nodes={nodes}
           onNodesChange={onNodesChange}
