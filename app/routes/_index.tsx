@@ -5,7 +5,6 @@ import {
   Button,
   Container,
   Typography,
-  Chip,
   Stack,
   useTheme,
 } from "@mui/material";
