@@ -1,6 +1,6 @@
 import React from "react";
 import { Outlet } from "react-router";
-
+import { Box, Container } from "@mui/material"; // Import MUI components
 import { AppNavBar } from "~/ui/organisms";
 
 export function meta() {
@@ -12,11 +12,31 @@ export function meta() {
 
 export default function AppLayout() {
   return (
-    <div className="min-h-screen bg-white flex flex-col font-sans text-gray-900">
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "100vh",
+        bgcolor: "background.default",
+        color: "text.primary",
+      }}
+    >
       <AppNavBar />
-      <main className="grow p-4 md:p-8 max-w-7xl mx-auto w-full flex flex-col">
+
+      <Container
+        component="main"
+        maxWidth="xl"
+        sx={{
+          flexGrow: 1,
+          display: "flex",
+          flexDirection: "column",
+          width: "100%",
+          py: { xs: 2, md: 4 },
+          px: { xs: 2, md: 4 },
+        }}
+      >
         <Outlet />
-      </main>
-    </div>
+      </Container>
+    </Box>
   );
 }
