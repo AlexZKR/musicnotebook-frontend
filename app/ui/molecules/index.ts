@@ -3,6 +3,6 @@ export { default as TopicNode } from "./TopicNode";
 export * from "./NotebookBlock";
 export * from "./NotebookTableOfContents";
 export * from "./NotebookToolbar";
-export * from "./BlockDeleteButton";
 export * from "./NoteInfoDisplay";
 export * from "./Logo";
+export * from "./BlockSideControls";

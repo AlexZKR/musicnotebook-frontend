@@ -1,23 +1,29 @@
 import React, { useState, useRef, useEffect } from "react";
 import type MDEditorType from "@uiw/react-md-editor";
-import { BlockDeleteButton } from "~/ui/molecules/BlockDeleteButton";
+import { NotebookBlock } from "~/ui/molecules/NotebookBlock";
 
 export interface TextBlockProps {
   id: string;
   initialContent: string;
   isLocked: boolean;
+  onToggleLock: () => void;
   onUpdate: (content: string) => void;
   onDelete: () => void;
 }
 
-export default function TextBlock({
+interface TextBlockContentProps extends TextBlockProps {
+  isEditing: boolean;
+  setIsEditing: (val: boolean) => void;
+}
+
+function TextBlockContent({
   initialContent,
   isLocked,
   onUpdate,
-  onDelete,
-}: TextBlockProps) {
+  isEditing,
+  setIsEditing,
+}: Omit<TextBlockContentProps, "onDelete">) {
   const [value, setValue] = useState(initialContent);
-  const [isEditing, setIsEditing] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const [EditorModule, setEditorModule] = useState<typeof MDEditorType | null>(
@@ -34,6 +40,12 @@ export default function TextBlock({
   useEffect(() => {
     setValue(initialContent);
   }, [initialContent]);
+
+  const handleChange = (val: string | undefined) => {
+    const newVal = val || "";
+    setValue(newVal);
+    onUpdate(newVal);
+  };
 
   // Handle clicking outside to exit edit mode
   useEffect(() => {
@@ -53,20 +65,7 @@ export default function TextBlock({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isEditing]);
-
-  const handleChange = (val: string | undefined) => {
-    const newVal = val || "";
-    setValue(newVal);
-    onUpdate(newVal);
-  };
-
-  // If we become locked while editing, force exit edit mode
-  useEffect(() => {
-    if (isLocked && isEditing) {
-      setIsEditing(false);
-    }
-  }, [isLocked, isEditing]);
+  }, [isEditing, setIsEditing]);
 
   if (!EditorModule) {
     return (
@@ -87,15 +86,6 @@ export default function TextBlock({
             : "hover:bg-gray-50 cursor-text border border-transparent hover:border-gray-200"
       }`}
     >
-      {!isEditing && !isLocked && (
-        <BlockDeleteButton
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete();
-          }}
-        />
-      )}
-
       {isEditing ? (
         <div data-color-mode="light">
           <MDEditor
@@ -133,5 +123,24 @@ export default function TextBlock({
         </div>
       )}
     </div>
+  );
+}
+
+export default function TextBlock(props: TextBlockProps) {
+  return (
+    <NotebookBlock
+      id={props.id}
+      isLocked={props.isLocked}
+      onToggleLock={props.onToggleLock}
+      onDelete={props.onDelete}
+    >
+      {(isEditing, setIsEditing) => (
+        <TextBlockContent
+          {...props}
+          isEditing={isEditing}
+          setIsEditing={setIsEditing}
+        />
+      )}
+    </NotebookBlock>
   );
 }

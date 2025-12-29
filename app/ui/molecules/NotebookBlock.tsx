@@ -1,22 +1,36 @@
-import React from "react";
+import React, { useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import LockIcon from "@mui/icons-material/Lock";
-import UnlockIcon from "@mui/icons-material/LockOpen";
+import { BlockSideControls } from "./BlockSideControls";
 
 interface NotebookBlockProps {
   id: string;
   isLocked?: boolean;
   onToggleLock: () => void;
-  children: React.ReactNode;
+  onDelete: () => void;
+  children: (
+    isEditing: boolean,
+    setIsEditing: (val: boolean) => void,
+    isDraggingEnabled: boolean,
+    setIsDraggingEnabled: (val: boolean) => void
+  ) => React.ReactNode;
 }
 
 export function NotebookBlock({
   id,
   isLocked,
   onToggleLock,
+  onDelete,
   children,
 }: NotebookBlockProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [isDraggingEnabled, setIsDraggingEnabled] = useState(true);
+
+  // Sync state with isLocked: if locked, we cannot be editing.
+  if (isLocked && isEditing) {
+    setIsEditing(false);
+  }
+
   const {
     attributes,
     listeners,
@@ -40,47 +54,22 @@ export function NotebookBlock({
       id={`block-${id}`}
       className="relative flex items-start gap-2 group/sortable mb-8 scroll-mt-28 sm:scroll-mt-32"
     >
-      <div className="mt-4 flex flex-col items-center gap-1 opacity-70 md:opacity-0 group-hover/sortable:opacity-100 transition-opacity">
-        <div
-          {...attributes}
-          {...listeners}
-          className="p-2 cursor-grab text-gray-300 hover:text-gray-600 active:cursor-grabbing select-none touch-manipulation"
-          title="Drag to reorder"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="9" cy="12" r="1" />
-            <circle cx="9" cy="5" r="1" />
-            <circle cx="9" cy="19" r="1" />
-            <circle cx="15" cy="12" r="1" />
-            <circle cx="15" cy="5" r="1" />
-            <circle cx="15" cy="19" r="1" />
-          </svg>
-        </div>
+      <BlockSideControls
+        isLocked={isLocked}
+        onToggleLock={onToggleLock}
+        onDelete={onDelete}
+        attributes={attributes}
+        listeners={listeners}
+      />
 
-        <button
-          onClick={onToggleLock}
-          className={`p-2 rounded-full transition-colors ${
-            isLocked
-              ? "text-gray-400 hover:text-gray-600"
-              : "text-blue-400 hover:text-blue-600 bg-blue-50"
-          }`}
-          title={isLocked ? "Unlock Block" : "Lock Block"}
-        >
-          {isLocked ? <LockIcon /> : <UnlockIcon />}
-        </button>
+      <div className="grow min-w-0">
+        {children(
+          isEditing,
+          setIsEditing,
+          isDraggingEnabled,
+          setIsDraggingEnabled
+        )}
       </div>
-
-      <div className="grow min-w-0">{children}</div>
     </div>
   );
 }

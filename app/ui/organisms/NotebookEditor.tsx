@@ -17,7 +17,6 @@ import {
 
 import type { BlockData, BlockType } from "~/features/notebook/model/block";
 import { MusicBlock, TextBlock } from "~/ui/organisms";
-import { NotebookBlock } from "~/ui/molecules/NotebookBlock";
 import { NotebookTableOfContents } from "~/ui/molecules/NotebookTableOfContents";
 import { NotebookToolbar } from "~/ui/molecules/NotebookToolbar";
 
@@ -120,32 +119,29 @@ export function NotebookEditor({
               items={blocks.map((b) => b.id)}
               strategy={verticalListSortingStrategy}
             >
-              {blocks.map((block) => (
-                <NotebookBlock
-                  key={block.id}
-                  id={block.id}
-                  isLocked={block.isLocked}
-                  onToggleLock={() => toggleBlockLock(block.id)}
-                >
-                  {block.type === "music" ? (
-                    <MusicBlock
-                      id={block.id}
-                      initialContent={block.content}
-                      isLocked={!!block.isLocked}
-                      onUpdate={(content) => updateBlock(block.id, content)}
-                      onDelete={() => deleteBlock(block.id)}
-                    />
-                  ) : (
-                    <TextBlock
-                      id={block.id}
-                      initialContent={block.content}
-                      isLocked={!!block.isLocked}
-                      onUpdate={(content) => updateBlock(block.id, content)}
-                      onDelete={() => deleteBlock(block.id)}
-                    />
-                  )}
-                </NotebookBlock>
-              ))}
+              {blocks.map((block) =>
+                block.type === "music" ? (
+                  <MusicBlock
+                    key={block.id}
+                    id={block.id}
+                    initialContent={block.content}
+                    isLocked={!!block.isLocked}
+                    onToggleLock={() => toggleBlockLock(block.id)}
+                    onUpdate={(content) => updateBlock(block.id, content)}
+                    onDelete={() => deleteBlock(block.id)}
+                  />
+                ) : (
+                  <TextBlock
+                    key={block.id}
+                    id={block.id}
+                    initialContent={block.content}
+                    isLocked={!!block.isLocked}
+                    onToggleLock={() => toggleBlockLock(block.id)}
+                    onUpdate={(content) => updateBlock(block.id, content)}
+                    onDelete={() => deleteBlock(block.id)}
+                  />
+                )
+              )}
             </SortableContext>
           </DndContext>
         </div>

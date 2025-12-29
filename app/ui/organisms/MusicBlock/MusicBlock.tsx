@@ -1,239 +1,61 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
-import abcjs, {
-  type AbcElem,
-  type ClickListenerAnalysis,
-  type ClickListenerDrag,
-  type NoteTimingEvent,
-  type MidiPitches,
-  type MidiGracePitches,
-} from "abcjs";
+import React from "react";
 import "abcjs/abcjs-audio.css";
 
-import {
-  getNoteName,
-  getMeasureNumber,
-  moveNote,
-  tokenize,
-  CursorControl,
-} from "~/features/notebook/model/music";
-import { BlockDeleteButton } from "~/ui/molecules/BlockDeleteButton";
 import { NoteInfoDisplay } from "~/ui/molecules/NoteInfoDisplay";
+import { NotebookBlock } from "~/ui/molecules/NotebookBlock";
 import EditIcon from "@mui/icons-material/Edit";
 import CloseIcon from "@mui/icons-material/Close";
 import DragIcon from "@mui/icons-material/OpenWith";
 import DragOffIcon from "@mui/icons-material/PanToolAltOutlined";
+import { useAbcJs } from "./useAbcJs";
 
 export interface MusicBlockProps {
   id: string;
   initialContent: string;
   isLocked: boolean;
+  onToggleLock: () => void;
   onUpdate: (content: string) => void;
   onDelete: () => void;
 }
 
-export default function MusicBlock({
+interface MusicBlockContentProps extends MusicBlockProps {
+  isEditing: boolean;
+  setIsEditing: (val: boolean) => void;
+  isDraggingEnabled: boolean;
+  setIsDraggingEnabled: (val: boolean) => void;
+}
+
+function MusicBlockContent({
   id,
   initialContent,
   isLocked,
   onUpdate,
-  onDelete,
-}: MusicBlockProps) {
-  const paperId = `paper-${id}`;
-  const audioId = `audio-${id}`;
-
-  const [isEditing, setIsEditing] = useState(false);
-  const [isDraggingEnabled, setIsDraggingEnabled] = useState(true);
-
+  isEditing,
+  setIsEditing,
+  isDraggingEnabled,
+  setIsDraggingEnabled,
+}: Omit<MusicBlockContentProps, "onDelete">) {
   const effectiveIsEditing = isLocked ? false : isEditing;
   const effectiveIsDraggingEnabled = isLocked ? false : isDraggingEnabled;
 
-  const [abcString, setAbcString] = useState(initialContent);
-
-  const [highlight, setHighlight] = useState<{
-    start: number;
-    end: number;
-  } | null>(null);
-  const [noteInfo, setNoteInfo] = useState<{
-    name: string;
-    octave: number;
-    measure: number;
-  } | null>(null);
-
-  const synthControlRef = useRef<abcjs.SynthObjectController | null>(null);
-
-  const handleContentChange = useCallback(
-    (newContent: string) => {
-      setAbcString(newContent);
-      onUpdate(newContent);
-    },
-    [onUpdate]
-  );
-
-  const handleNoteClick = useCallback(
-    (
-      abcelem: AbcElem,
-      tuneNumber: number,
-      classes: string,
-      analysis: ClickListenerAnalysis,
-      drag: ClickListenerDrag
-    ) => {
-      let newHighlight = null;
-      let currentNoteName = "";
-      let currentOctave = 0;
-
-      if (abcelem.startChar !== undefined && abcelem.endChar !== undefined) {
-        newHighlight = { start: abcelem.startChar, end: abcelem.endChar };
-      }
-
-      if (
-        abcjs.synth.supportsAudio() &&
-        abcelem.midiPitches &&
-        abcelem.midiPitches.length > 0
-      ) {
-        const step = drag ? drag.step : 0;
-
-        const shiftedPitches: MidiPitches = abcelem.midiPitches.map((p) => {
-          return { ...p, pitch: p.pitch + step };
-        });
-
-        const primaryPitch = shiftedPitches[0].pitch;
-        const parsed = getNoteName(primaryPitch);
-        if (typeof parsed === "object") {
-          currentNoteName = parsed.name;
-          currentOctave = parsed.octave;
-        }
-
-        abcjs.synth
-          .playEvent(
-            shiftedPitches,
-            abcelem.midiGraceNotePitches as MidiGracePitches,
-            400
-          )
-          .catch((err) => console.warn("Synth error:", err));
-      }
-
-      if (
-        !isLocked &&
-        drag &&
-        drag.step &&
-        abcelem.startChar !== undefined &&
-        abcelem.endChar !== undefined
-      ) {
-        const originalText = abcString.substring(
-          abcelem.startChar,
-          abcelem.endChar
-        );
-        const arr = tokenize(originalText);
-
-        for (let i = 0; i < arr.length; i++) {
-          arr[i] = moveNote(arr[i], drag.step);
-        }
-        const newText = arr.join("");
-        const newAbc =
-          abcString.substring(0, abcelem.startChar) +
-          newText +
-          abcString.substring(abcelem.endChar);
-
-        handleContentChange(newAbc);
-
-        if (newHighlight) {
-          newHighlight.end = abcelem.startChar + newText.length;
-        }
-      }
-
-      setHighlight(newHighlight);
-      if (currentNoteName && newHighlight) {
-        setNoteInfo({
-          name: currentNoteName,
-          octave: currentOctave,
-          measure: getMeasureNumber(abcString, newHighlight.start),
-        });
-      } else {
-        setNoteInfo(null);
-      }
-    },
-    [abcString, isLocked, handleContentChange]
-  );
-
-  useEffect(() => {
-    const visualObj = abcjs.renderAbc(paperId, abcString, {
-      responsive: "resize",
-      add_classes: true,
-      dragging: effectiveIsDraggingEnabled,
-      clickListener: handleNoteClick,
-      selectTypes: ["note"],
-    })[0];
-
-    if (abcjs.synth.supportsAudio()) {
-      if (!synthControlRef.current) {
-        synthControlRef.current = new abcjs.synth.SynthController();
-      }
-
-      const synthControl = synthControlRef.current;
-
-      const cursorControl = new CursorControl(
-        `#${paperId}`,
-        (start, end, event?: NoteTimingEvent) => {
-          if (start === -1 || end === -1) {
-            setHighlight(null);
-            setNoteInfo(null);
-          } else {
-            setHighlight({ start, end });
-
-            if (event && event.midiPitches && event.midiPitches.length > 0) {
-              const parsed = getNoteName(event.midiPitches[0].pitch);
-              if (typeof parsed === "object") {
-                setNoteInfo({
-                  name: parsed.name,
-                  octave: parsed.octave,
-                  measure: getMeasureNumber(abcString, start),
-                });
-              }
-            }
-          }
-        }
-      );
-
-      synthControl.load(`#${audioId}`, cursorControl, {
-        displayLoop: true,
-        displayRestart: true,
-        displayPlay: true,
-        displayProgress: true,
-        displayWarp: true,
-      });
-
-      const createSynth = new abcjs.synth.CreateSynth();
-      createSynth
-        .init({ visualObj: visualObj })
-        .then(() => {
-          synthControl.setTune(visualObj, false);
-        })
-        .catch(console.warn);
-    }
-  }, [
+  const {
     abcString,
+    noteInfo,
+    handleContentChange,
+    renderBackdrop,
     paperId,
     audioId,
-    handleNoteClick,
-    effectiveIsDraggingEnabled,
+    setHighlight,
+    setNoteInfo,
+  } = useAbcJs({
+    id,
+    initialContent,
     isLocked,
-  ]);
+    isDraggingEnabled: effectiveIsDraggingEnabled,
+    onUpdate,
+  });
 
-  const renderBackdrop = () => {
-    if (!highlight || highlight.start < 0 || highlight.end > abcString.length) {
-      return abcString;
-    }
-    const before = abcString.slice(0, highlight.start);
-    const match = abcString.slice(highlight.start, highlight.end);
-    const after = abcString.slice(highlight.end);
-    return (
-      <>
-        {before}
-        <span className="bg-yellow-200 text-gray-900 rounded-sm">{match}</span>
-        {after}
-      </>
-    );
-  };
+  const backdropResult = renderBackdrop(abcString);
 
   return (
     <div className="relative border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow bg-white text-gray-900 group">
@@ -241,8 +63,6 @@ export default function MusicBlock({
         #${paperId} .abcjs-highlight { fill: #3b82f6; }
         #${paperId} .abcjs-cursor { stroke: red; }
       `}</style>
-
-      {!isLocked && <BlockDeleteButton onClick={onDelete} />}
 
       <div className="flex flex-col">
         <div className="w-full p-3 sm:p-4 flex flex-col justify-between bg-white">
@@ -343,7 +163,17 @@ export default function MusicBlock({
                 className="absolute inset-0 p-2 font-mono text-xs sm:text-sm whitespace-pre-wrap wrap-break-word pointer-events-none text-gray-900"
                 aria-hidden="true"
               >
-                {renderBackdrop()}
+                {typeof backdropResult === "string" ? (
+                  backdropResult
+                ) : (
+                  <>
+                    {backdropResult.before}
+                    <span className="bg-yellow-200 text-gray-900 rounded-sm">
+                      {backdropResult.match}
+                    </span>
+                    {backdropResult.after}
+                  </>
+                )}
               </div>
 
               <textarea
@@ -364,5 +194,26 @@ export default function MusicBlock({
         )}
       </div>
     </div>
+  );
+}
+
+export default function MusicBlock(props: MusicBlockProps) {
+  return (
+    <NotebookBlock
+      id={props.id}
+      isLocked={props.isLocked}
+      onToggleLock={props.onToggleLock}
+      onDelete={props.onDelete}
+    >
+      {(isEditing, setIsEditing, isDraggingEnabled, setIsDraggingEnabled) => (
+        <MusicBlockContent
+          {...props}
+          isEditing={isEditing}
+          setIsEditing={setIsEditing}
+          isDraggingEnabled={isDraggingEnabled}
+          setIsDraggingEnabled={setIsDraggingEnabled}
+        />
+      )}
+    </NotebookBlock>
   );
 }
