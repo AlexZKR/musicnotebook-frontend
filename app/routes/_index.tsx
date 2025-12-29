@@ -1,5 +1,15 @@
 import React from "react";
-import { Link } from "react-router";
+import { Link as RouterLink } from "react-router";
+import {
+  Box,
+  Button,
+  Container,
+  Typography,
+  Chip,
+  Stack,
+  useTheme,
+} from "@mui/material";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 export function meta() {
   return [
@@ -9,36 +19,77 @@ export function meta() {
 }
 
 export default function IndexRoute() {
+  const theme = useTheme();
+
   return (
-    <div className="flex flex-col items-center justify-center grow py-12 md:py-20 text-center animate-in fade-in zoom-in-95 duration-500">
-      <div className="mb-8 inline-block px-4 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-medium border border-blue-100">
-        🎵 The future of music theory is interactive
-      </div>
-      <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 mb-8 tracking-tight leading-tight">
-        Master Music Theory <br className="hidden md:block" />
-        <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-indigo-600">
-          The Interactive Way
-        </span>
-      </h1>
-      <p className="text-lg md:text-xl text-gray-600 max-w-2xl mb-12 leading-relaxed mx-auto">
-        Forget dry textbooks. Music Notebook lets you learn theory through
-        <strong> living documents</strong>. Edit musical notation, hear the
-        changes instantly, and visualize concepts on a connected roadmap.
-      </p>
-      <div className="flex flex-col sm:flex-row gap-4 justify-center w-full sm:w-auto">
-        <Link
-          to="/roadmap"
-          className="px-8 py-4 bg-blue-600 text-white rounded-full font-bold text-lg hover:bg-blue-700 transition-all hover:scale-105 shadow-lg shadow-blue-200"
+    <Container maxWidth="md">
+      <Stack
+        alignItems="center"
+        justifyContent="center"
+        textAlign="center"
+        spacing={4}
+        sx={{
+          minHeight: "80vh",
+          py: { xs: 8, md: 12 }, // Responsive padding (xs=mobile, md=desktop)
+        }}
+      >
+        <Typography
+          variant="h1"
+          sx={{ fontSize: { xs: "2.5rem", md: "4rem" } }}
         >
-          Start Roadmap
-        </Link>
-        <Link
-          to="/about"
-          className="px-8 py-4 bg-white text-gray-700 border border-gray-300 rounded-full font-bold text-lg hover:bg-gray-50 transition-colors"
+          Master Music Theory <br />
+          <Box
+            component="span"
+            sx={{
+              background: `linear-gradient(to right, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+              backgroundClip: "text",
+              textFillColor: "transparent",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
+            The Interactive Way
+          </Box>
+        </Typography>
+
+        {/* 3. The Subtext */}
+        <Typography
+          variant="h5"
+          color="text.secondary"
+          sx={{ maxWidth: 600, fontWeight: 400, lineHeight: 1.6 }}
         >
-          Learn More
-        </Link>
-      </div>
-    </div>
+          Forget dry textbooks. Music Notebook lets you learn theory through{" "}
+          <Box component="strong" color="text.primary">
+            interactive documents
+          </Box>
+          . Edit musical notation, hear the changes instantly, and visualize
+          knowledge on a connected roadmap.
+        </Typography>
+
+        {/* 4. The Action Buttons */}
+        <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+          <Button
+            component={RouterLink}
+            to="/roadmap"
+            variant="contained"
+            size="large"
+            endIcon={<ArrowForwardIcon />}
+            sx={{ px: 4, py: 1.5, fontSize: "1.1rem" }}
+          >
+            Start Roadmap
+          </Button>
+          <Button
+            component={RouterLink}
+            to="/about"
+            variant="outlined"
+            size="large"
+            color="inherit" // Uses neutral color (gray/black/white)
+            sx={{ px: 4, py: 1.5, fontSize: "1.1rem" }}
+          >
+            Learn More
+          </Button>
+        </Stack>
+      </Stack>
+    </Container>
   );
 }

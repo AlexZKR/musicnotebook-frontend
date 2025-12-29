@@ -34,6 +34,14 @@ const getDesignTokens = (mode: "light" | "dark"): ThemeOptions => ({
     h3: { fontWeight: 600 },
   },
   components: {
+    MuiCssBaseline: {
+      styleOverrides: (themeParam) => ({
+        body: {
+          backgroundColor: themeParam.palette.background.default,
+          color: themeParam.palette.text.primary,
+        },
+      }),
+    },
     MuiButton: {
       styleOverrides: {
         root: {

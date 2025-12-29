@@ -42,9 +42,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <ThemeContextProvider>
-          <CssBaseline />
           <RoadmapDataProvider>
-            <UserProvider>{children}</UserProvider>
+            <UserProvider>
+              <CssBaseline />
+              {children}
+            </UserProvider>
           </RoadmapDataProvider>
           <ScrollRestoration />
           <Scripts />
