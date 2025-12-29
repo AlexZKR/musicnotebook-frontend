@@ -81,6 +81,35 @@ const UnlockIcon = () => (
   </svg>
 );
 
+// --- Helper: Extract Title ---
+const getBlockTitle = (block: BlockData) => {
+  let title = "Untitled Block";
+  if (block.type === "text") {
+    // Try to match markdown headers (# Heading)
+    const match = block.content.match(/^#{1,6}\s+(.*)/m);
+    if (match) {
+      title = match[1];
+    } else {
+      // Fallback to first line or slice
+      title = block.content.split("\n")[0] || "Text Block";
+    }
+  } else if (block.type === "music") {
+    // Match T: Title
+    const match = block.content.match(/^T:\s*(.*)/m);
+    if (match) {
+      title = match[1];
+    } else {
+      title = "Untitled Music";
+    }
+  }
+
+  // Max length truncate
+  if (title.length > 25) {
+    return title.substring(0, 25) + "...";
+  }
+  return title;
+};
+
 // --- Sortable Wrapper Component ---
 function SortableBlockWrapper({
   id,
@@ -113,7 +142,8 @@ function SortableBlockWrapper({
     <div
       ref={setNodeRef}
       style={style}
-      className="relative flex items-start gap-2 group/sortable mb-8"
+      id={`block-${id}`} // Add ID for scroll target
+      className="relative flex items-start gap-2 group/sortable mb-8 scroll-mt-24"
     >
       {/* Controls Container (Drag + Lock) */}
       <div className="mt-4 flex flex-col items-center gap-1 opacity-0 group-hover/sortable:opacity-100 transition-opacity">
@@ -159,6 +189,44 @@ function SortableBlockWrapper({
       </div>
 
       <div className="flex-grow min-w-0">{children}</div>
+    </div>
+  );
+}
+
+// --- Table of Contents Component ---
+function TableOfContents({ blocks }: { blocks: BlockData[] }) {
+  const scrollToBlock = (id: string) => {
+    const el = document.getElementById(`block-${id}`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  return (
+    <div className="hidden xl:block w-64 flex-shrink-0">
+      <div className="sticky top-24 bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm max-h-[calc(100vh-8rem)] overflow-y-auto">
+        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 px-2">
+          Contents
+        </h3>
+        <ul className="space-y-1">
+          {blocks.map((block, index) => (
+            <li key={block.id}>
+              <button
+                onClick={() => scrollToBlock(block.id)}
+                className="w-full text-left px-2 py-1.5 rounded-md text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors flex items-center gap-2 group"
+              >
+                <span className="opacity-70 group-hover:opacity-100 flex-shrink-0 w-6 font-mono text-xs text-gray-400 group-hover:text-gray-600">
+                  {index + 1}.
+                </span>
+                <span className="opacity-70 group-hover:opacity-100 flex-shrink-0 w-5">
+                  {block.type === "music" ? "🎵" : "📝"}
+                </span>
+                <span className="truncate">{getBlockTitle(block)}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
@@ -220,10 +288,7 @@ export default function Notebook({ initialBlocks, onComplete }: NotebookProps) {
   };
 
   const toggleAllLocks = () => {
-    // Check if all are currently locked
     const allLocked = blocks.every((b) => b.isLocked);
-
-    // If all are locked, unlock all. Otherwise, lock all.
     setBlocks((prev) => prev.map((b) => ({ ...b, isLocked: !allLocked })));
   };
 
@@ -231,60 +296,71 @@ export default function Notebook({ initialBlocks, onComplete }: NotebookProps) {
     setBlocks((prev) => prev.filter((b) => b.id !== id));
   };
 
-  // Determine if we should show "Unlock All" or "Lock All" icon
   const areAllLocked = blocks.every((b) => b.isLocked);
 
   return (
-    <div className="max-w-4xl mx-auto p-4 md:p-8 pb-32">
-      {/* Complete Button */}
-      {onComplete && (
-        <div className="flex justify-end mb-8">
-          <button
-            onClick={onComplete}
-            className="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-full font-bold shadow-lg shadow-green-200 transition-all hover:scale-105 active:scale-95"
-          >
-            <span>✅</span> Mark as Done
-          </button>
+    <div className="max-w-[1400px] mx-auto p-4 md:p-8 pb-32">
+      <div className="flex gap-8 lg:gap-12 relative">
+        {/* Sidebar Column (Left) - Using sticky positioning relative to viewport */}
+        <div className="hidden xl:block w-64 flex-shrink-0 relative">
+          <div className="sticky top-24">
+            <TableOfContents blocks={blocks} />
+          </div>
         </div>
-      )}
 
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext
-          items={blocks.map((b) => b.id)}
-          strategy={verticalListSortingStrategy}
-        >
-          {blocks.map((block) => (
-            <SortableBlockWrapper
-              key={block.id}
-              id={block.id}
-              isLocked={block.isLocked}
-              onToggleLock={() => toggleBlockLock(block.id)}
+        {/* Main Content Column */}
+        <div className="flex-grow min-w-0">
+          {/* Complete Button */}
+          {onComplete && (
+            <div className="flex justify-end mb-8">
+              <button
+                onClick={onComplete}
+                className="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-full font-bold shadow-lg shadow-green-200 transition-all hover:scale-105 active:scale-95"
+              >
+                <span>✅</span> Mark as Done
+              </button>
+            </div>
+          )}
+
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={blocks.map((b) => b.id)}
+              strategy={verticalListSortingStrategy}
             >
-              {block.type === "music" ? (
-                <MusicBlock
+              {blocks.map((block) => (
+                <SortableBlockWrapper
+                  key={block.id}
                   id={block.id}
-                  initialContent={block.content}
-                  isLocked={!!block.isLocked}
-                  onUpdate={(content) => updateBlock(block.id, content)}
-                  onDelete={() => deleteBlock(block.id)}
-                />
-              ) : (
-                <TextBlock
-                  id={block.id}
-                  initialContent={block.content}
-                  isLocked={!!block.isLocked}
-                  onUpdate={(content) => updateBlock(block.id, content)}
-                  onDelete={() => deleteBlock(block.id)}
-                />
-              )}
-            </SortableBlockWrapper>
-          ))}
-        </SortableContext>
-      </DndContext>
+                  isLocked={block.isLocked}
+                  onToggleLock={() => toggleBlockLock(block.id)}
+                >
+                  {block.type === "music" ? (
+                    <MusicBlock
+                      id={block.id}
+                      initialContent={block.content}
+                      isLocked={!!block.isLocked}
+                      onUpdate={(content) => updateBlock(block.id, content)}
+                      onDelete={() => deleteBlock(block.id)}
+                    />
+                  ) : (
+                    <TextBlock
+                      id={block.id}
+                      initialContent={block.content}
+                      isLocked={!!block.isLocked}
+                      onUpdate={(content) => updateBlock(block.id, content)}
+                      onDelete={() => deleteBlock(block.id)}
+                    />
+                  )}
+                </SortableBlockWrapper>
+              ))}
+            </SortableContext>
+          </DndContext>
+        </div>
+      </div>
 
       {/* Floating Toolbar */}
       <div className="fixed bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-white p-2 rounded-full shadow-lg border border-gray-200 z-50">
