@@ -11,6 +11,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import Banner from "~/ui/atoms/Banner";
 import Link from "~/ui/atoms/Link";
 
 export function meta() {
@@ -108,26 +109,10 @@ export default function AboutRoute() {
           ))}
         </List>
 
-        <Paper
-          variant="outlined"
-          sx={{
-            mt: 4,
-            p: 3,
-            borderRadius: 3,
-          }}
-        >
-          <Typography
-            variant="subtitle2"
-            sx={{ fontWeight: "bold", mb: 1, display: "block" }}
-          >
-            Current Status
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            This project is currently in active development. Features like user
-            accounts, progress tracking, and community-shared lessons are coming
-            soon!
-          </Typography>
-        </Paper>
+        <Banner
+          title="Current Status"
+          description="This project is currently in active development. Features like user accounts, progress tracking, and community-shared lessons are coming soon!"
+        />
       </Stack>
     </Container>
   );
