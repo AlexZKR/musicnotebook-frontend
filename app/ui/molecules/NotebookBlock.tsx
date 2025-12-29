@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { Box } from "@mui/material";
 import { BlockSideControls } from "./BlockSideControls";
 
 interface NotebookBlockProps {
@@ -26,10 +27,19 @@ export function NotebookBlock({
   const [isEditing, setIsEditing] = useState(false);
   const [isDraggingEnabled, setIsDraggingEnabled] = useState(true);
 
-  // Sync state with isLocked: if locked, we cannot be editing.
-  if (isLocked && isEditing) {
+  const effectiveIsEditing = isLocked ? false : isEditing;
+  const setEffectiveIsEditing = (val: boolean) => {
+    if (isLocked) {
+      if (!val) setIsEditing(false);
+      return;
+    }
+    setIsEditing(val);
+  };
+
+  const handleToggleLock = () => {
     setIsEditing(false);
-  }
+    onToggleLock();
+  };
 
   const {
     attributes,
@@ -48,28 +58,39 @@ export function NotebookBlock({
   };
 
   return (
-    <div
+    <Box
       ref={setNodeRef}
-      style={style}
       id={`block-${id}`}
-      className="relative flex items-start gap-2 group/sortable mb-8 scroll-mt-28 sm:scroll-mt-32"
+      sx={{
+        ...style,
+        position: "relative",
+        display: "flex",
+        alignItems: "flex-start",
+        gap: 2,
+        mb: 8,
+        scrollMarginTop: { xs: "112px", sm: "128px" },
+        "&:hover .block-controls": {
+          opacity: 1,
+        },
+      }}
+      className="group/sortable"
     >
       <BlockSideControls
         isLocked={isLocked}
-        onToggleLock={onToggleLock}
+        onToggleLock={handleToggleLock}
         onDelete={onDelete}
         attributes={attributes}
         listeners={listeners}
       />
 
-      <div className="grow min-w-0">
+      <Box sx={{ flexGrow: 1, minWidth: 0 }}>
         {children(
-          isEditing,
-          setIsEditing,
+          effectiveIsEditing,
+          setEffectiveIsEditing,
           isDraggingEnabled,
           setIsDraggingEnabled
         )}
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 }

@@ -1,8 +1,25 @@
 import React, { useState } from "react";
+import {
+  Box,
+  Typography,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Paper,
+  alpha,
+  useTheme,
+} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import MusicNoteIcon from "@mui/icons-material/MusicNote";
+import DescriptionIcon from "@mui/icons-material/Description";
+
 import type { BlockData } from "~/features/notebook/model/block";
 import { getBlockTitle } from "~/features/notebook/model/block";
-import ChevronDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 
 interface NotebookTableOfContentsProps {
   blocks: BlockData[];
@@ -11,6 +28,7 @@ interface NotebookTableOfContentsProps {
 export function NotebookTableOfContents({
   blocks,
 }: NotebookTableOfContentsProps) {
+  const theme = useTheme();
   const [isExpanded, setIsExpanded] = useState(false);
 
   const scrollToBlock = (id: string) => {
@@ -19,46 +37,112 @@ export function NotebookTableOfContents({
       el.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
-
   return (
-    <div className="w-full xl:w-96 shrink-0">
-      <div className="xl:sticky top-24 bg-gray-50 border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-        <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full flex items-center justify-between p-4 text-xs font-bold text-gray-500 uppercase tracking-wider hover:bg-gray-100 transition-colors touch-manipulation"
+    <Box sx={{ width: "100%", maxWidth: { xl: 384 }, flexShrink: 0 }}>
+      <Paper
+        elevation={0}
+        variant="outlined"
+        sx={{
+          position: { xl: "sticky" },
+          top: { xl: 96 },
+          borderRadius: 3,
+          overflow: "hidden",
+          bgcolor: "background.paper",
+        }}
+      >
+        <Accordion
+          expanded={isExpanded}
+          onChange={() => setIsExpanded(!isExpanded)}
+          disableGutters
+          elevation={0}
+          sx={{
+            bgcolor: "transparent",
+            "&:before": { display: "none" },
+          }}
         >
-          <span>Contents</span>
-          {isExpanded ? <ChevronDownIcon /> : <ChevronRightIcon />}
-        </button>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon sx={{ fontSize: "1.2rem" }} />}
+            sx={{
+              px: 2,
+              minHeight: 48,
+              "& .MuiAccordionSummary-content": { my: 1 },
+              "&:hover": { bgcolor: "action.hover" },
+            }}
+          >
+            <Typography
+              variant="caption"
+              sx={{
+                fontWeight: "bold",
+                textTransform: "uppercase",
+                letterSpacing: "0.1em",
+                color: "text.secondary",
+              }}
+            >
+              Contents
+            </Typography>
+          </AccordionSummary>
 
-        <div
-          className={`transition-all duration-300 ease-in-out overflow-hidden ${
-            isExpanded ? "max-h-[80vh] opacity-100" : "max-h-0 opacity-0"
-          }`}
-        >
-          <ul className="space-y-1 p-2 border-t border-gray-100 overflow-y-auto max-h-[calc(80vh-40px)]">
-            {blocks.map((block, index) => (
-              <li key={block.id}>
-                <button
-                  onClick={() => {
-                    scrollToBlock(block.id);
-                    setIsExpanded(false);
-                  }}
-                  className="w-full text-left px-2 py-1.5 rounded-md text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors flex items-center gap-2 group touch-manipulation"
-                >
-                  <span className="opacity-70 group-hover:opacity-100 shrink-0 w-6 font-mono text-xs text-gray-400 group-hover:text-gray-600">
-                    {index + 1}.
-                  </span>
-                  <span className="opacity-70 group-hover:opacity-100 shrink-0 w-5">
-                    {block.type === "music" ? "🎵" : "📝"}
-                  </span>
-                  <span className="truncate">{getBlockTitle(block)}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    </div>
+          <AccordionDetails sx={{ p: 0, borderTop: 1, borderColor: "divider" }}>
+            <List
+              sx={{
+                maxHeight: "calc(80vh - 48px)",
+                overflowY: "auto",
+                py: 1,
+              }}
+            >
+              {blocks.map((block, index) => (
+                <ListItem key={block.id} disablePadding>
+                  <ListItemButton
+                    onClick={() => {
+                      scrollToBlock(block.id);
+                    }}
+                    sx={{
+                      py: 0.75,
+                      px: 2,
+                      transition: theme.transitions.create("background-color"),
+                      "&:hover": {
+                        bgcolor: alpha(theme.palette.primary.main, 0.08),
+                        "& .block-index": { color: "primary.main" },
+                      },
+                    }}
+                  >
+                    <Typography
+                      variant="overline"
+                      className="block-index"
+                      sx={{
+                        width: 24,
+                        mr: 1,
+                        fontFamily: "monospace",
+                        color: "text.disabled",
+                        transition: "inherit",
+                      }}
+                    >
+                      {index + 1}.
+                    </Typography>
+                    <ListItemIcon
+                      sx={{ minWidth: 32, color: "text.secondary" }}
+                    >
+                      {block.type === "music" ? (
+                        <MusicNoteIcon fontSize="small" />
+                      ) : (
+                        <DescriptionIcon fontSize="small" />
+                      )}
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={getBlockTitle(block)}
+                      primaryTypographyProps={{
+                        variant: "body2",
+                        noWrap: true,
+                        sx: { fontWeight: 500 },
+                      }}
+                    />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          </AccordionDetails>
+        </Accordion>
+      </Paper>
+    </Box>
   );
 }

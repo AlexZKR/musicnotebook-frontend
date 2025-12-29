@@ -1,7 +1,20 @@
 import React from "react";
-import type { BlockType } from "~/features/notebook/model/block";
+import {
+  Paper,
+  Button,
+  IconButton,
+  Divider,
+  Tooltip,
+  Box,
+  alpha,
+  useTheme,
+} from "@mui/material";
 import LockIcon from "@mui/icons-material/Lock";
 import UnlockIcon from "@mui/icons-material/LockOpen";
+import TextFieldsIcon from "@mui/icons-material/TextFields";
+import MusicNoteIcon from "@mui/icons-material/MusicNote";
+
+import type { BlockType } from "~/features/notebook/model/block";
 
 interface NotebookToolbarProps {
   onAddBlock: (type: BlockType) => void;
@@ -14,34 +27,105 @@ export function NotebookToolbar({
   onToggleAllLocks,
   areAllLocked,
 }: NotebookToolbarProps) {
+  const theme = useTheme();
+
   return (
-    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 sm:gap-4 bg-white p-2 rounded-full shadow-lg border border-gray-200 z-50 max-w-[calc(100vw-2rem)]">
-      <button
+    <Paper
+      elevation={4} // Reduced elevation for a flatter, more minimal look
+      sx={{
+        position: "fixed",
+        bottom: 32,
+        left: "50%",
+        transform: "translateX(-50%)",
+        display: "flex",
+        alignItems: "center",
+        gap: 0.5,
+        p: 0.75,
+        borderRadius: "99px",
+        zIndex: 1100,
+        border: "1px solid",
+        borderColor: "divider",
+        bgcolor: "background.paper",
+        maxWidth: "calc(100vw - 32px)",
+      }}
+    >
+      {/* Text Block Button - Minimal Style */}
+      <Button
+        variant="text"
+        color="inherit"
+        startIcon={<TextFieldsIcon fontSize="small" />}
         onClick={() => onAddBlock("text")}
-        className="flex items-center gap-1 sm:gap-2 px-3 py-2 sm:px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full font-medium transition-colors text-sm sm:text-base touch-manipulation"
+        sx={{
+          px: { xs: 1.5, sm: 2 },
+          py: 1,
+          borderRadius: "99px",
+          color: "text.secondary",
+          fontSize: "0.875rem",
+          "&:hover": {
+            bgcolor: "action.hover",
+            color: "text.primary",
+          },
+        }}
       >
-        <span>📝</span>
-        <span className="hidden sm:inline">Add Text</span>
-        <span className="sm:hidden">Text</span>
-      </button>
-      <button
+        <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
+          Add Text
+        </Box>
+        <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
+          Text
+        </Box>
+      </Button>
+
+      {/* Music Block Button - Subtle Highlight */}
+      <Button
+        variant="text" // Changed from contained to text for less visual weight
+        color="primary"
+        startIcon={<MusicNoteIcon fontSize="small" />}
         onClick={() => onAddBlock("music")}
-        className="flex items-center gap-1 sm:gap-2 px-3 py-2 sm:px-4 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-full font-medium transition-colors text-sm sm:text-base touch-manipulation"
+        sx={{
+          px: { xs: 1.5, sm: 2 },
+          py: 1,
+          borderRadius: "99px",
+          fontSize: "0.875rem",
+          fontWeight: 600,
+          // Subtle blue tint instead of solid block
+          bgcolor: alpha(theme.palette.primary.main, 0.04),
+          "&:hover": {
+            bgcolor: alpha(theme.palette.primary.main, 0.12),
+          },
+        }}
       >
-        <span>🎵</span>
-        <span className="hidden sm:inline">Add Music</span>
-        <span className="sm:hidden">Music</span>
-      </button>
+        <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
+          Add Music
+        </Box>
+        <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
+          Music
+        </Box>
+      </Button>
 
-      <div className="w-px h-6 bg-gray-300 mx-0.5 sm:mx-1"></div>
+      <Divider
+        orientation="vertical"
+        flexItem
+        variant="middle"
+        sx={{ mx: 1, height: 20, alignSelf: "center" }}
+      />
 
-      <button
-        onClick={onToggleAllLocks}
-        className="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors touch-manipulation"
-        title={areAllLocked ? "Unlock All Blocks" : "Lock All Blocks"}
-      >
-        {areAllLocked ? <LockIcon /> : <UnlockIcon />}
-      </button>
-    </div>
+      <Tooltip title={areAllLocked ? "Unlock All Blocks" : "Lock All Blocks"}>
+        <IconButton
+          onClick={onToggleAllLocks}
+          size="small"
+          sx={{
+            p: 1.25,
+            color: areAllLocked ? "text.disabled" : "primary.main",
+            "&:hover": { bgcolor: "action.hover" },
+          }}
+        >
+          {areAllLocked ? (
+            <LockIcon fontSize="small" />
+          ) : (
+            <UnlockIcon fontSize="small" />
+          )}
+        </IconButton>
+      </Tooltip>
+    </Paper>
   );
 }

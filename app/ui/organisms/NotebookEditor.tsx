@@ -14,6 +14,8 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { Box, Button, Grid } from "@mui/material";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 import type { BlockData, BlockType } from "~/features/notebook/model/block";
 import { MusicBlock, TextBlock } from "~/ui/organisms";
@@ -88,72 +90,97 @@ export function NotebookEditor({
   const areAllLocked = blocks.every((b) => b.isLocked);
 
   return (
-    <div className="w-full pb-32 relative">
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_768px_minmax(0,1fr)] gap-4 xl:gap-8">
-        <div className="hidden xl:flex justify-end pr-4">
+    <Box sx={{ width: "100%", pb: 32, position: "relative" }}>
+      {/* Three-column layout using MUI Grid */}
+      <Grid container spacing={{ xs: 2, xl: 4 }}>
+        {/* Left Column: TOC (Desktop Only) */}
+        <Grid
+          size={{ xl: 3 }}
+          sx={{
+            display: { xs: "none", xl: "flex" },
+            justifyContent: "flex-end",
+            pr: 2,
+          }}
+        >
           <NotebookTableOfContents blocks={blocks} />
-        </div>
+        </Grid>
 
-        <div className="px-2 py-4 sm:p-4 md:p-8 max-w-full">
-          <div className="xl:hidden mb-4">
-            <NotebookTableOfContents blocks={blocks} />
-          </div>
+        {/* Center Column: Blocks Area */}
+        <Grid size={{ xs: 12, xl: 6 }}>
+          <Box sx={{ px: { xs: 0, sm: 2 }, py: 2 }}>
+            {/* Mobile TOC */}
+            <Box sx={{ display: { xs: "block", xl: "none" }, mb: 4 }}>
+              <NotebookTableOfContents blocks={blocks} />
+            </Box>
 
-          {onComplete && (
-            <div className="flex justify-end mb-6 sm:mb-8">
-              <button
-                onClick={onComplete}
-                className="flex items-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 bg-green-600 hover:bg-green-700 text-white rounded-full font-bold text-sm sm:text-base shadow-lg shadow-green-200 transition-all hover:scale-105 active:scale-95 touch-manipulation"
-              >
-                <span>✅</span> Mark as Done
-              </button>
-            </div>
-          )}
+            {/* Mark as Done Action */}
+            {onComplete && (
+              <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 4 }}>
+                <Button
+                  variant="contained"
+                  color="success"
+                  startIcon={<CheckCircleIcon />}
+                  onClick={onComplete}
+                  sx={{
+                    borderRadius: "99px",
+                    fontWeight: "bold",
+                    px: 4,
+                    py: 1.5,
+                    boxShadow: (theme) =>
+                      `0 8px 16px ${theme.palette.success.light}40`,
+                  }}
+                >
+                  Mark as Done
+                </Button>
+              </Box>
+            )}
 
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext
-              items={blocks.map((b) => b.id)}
-              strategy={verticalListSortingStrategy}
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
             >
-              {blocks.map((block) =>
-                block.type === "music" ? (
-                  <MusicBlock
-                    key={block.id}
-                    id={block.id}
-                    initialContent={block.content}
-                    isLocked={!!block.isLocked}
-                    onToggleLock={() => toggleBlockLock(block.id)}
-                    onUpdate={(content) => updateBlock(block.id, content)}
-                    onDelete={() => deleteBlock(block.id)}
-                  />
-                ) : (
-                  <TextBlock
-                    key={block.id}
-                    id={block.id}
-                    initialContent={block.content}
-                    isLocked={!!block.isLocked}
-                    onToggleLock={() => toggleBlockLock(block.id)}
-                    onUpdate={(content) => updateBlock(block.id, content)}
-                    onDelete={() => deleteBlock(block.id)}
-                  />
-                )
-              )}
-            </SortableContext>
-          </DndContext>
-        </div>
+              <SortableContext
+                items={blocks.map((b) => b.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                {blocks.map((block) =>
+                  block.type === "music" ? (
+                    <MusicBlock
+                      key={block.id}
+                      id={block.id}
+                      initialContent={block.content}
+                      isLocked={!!block.isLocked}
+                      onToggleLock={() => toggleBlockLock(block.id)}
+                      onUpdate={(content) => updateBlock(block.id, content)}
+                      onDelete={() => deleteBlock(block.id)}
+                    />
+                  ) : (
+                    <TextBlock
+                      key={block.id}
+                      id={block.id}
+                      initialContent={block.content}
+                      isLocked={!!block.isLocked}
+                      onToggleLock={() => toggleBlockLock(block.id)}
+                      onUpdate={(content) => updateBlock(block.id, content)}
+                      onDelete={() => deleteBlock(block.id)}
+                    />
+                  )
+                )}
+              </SortableContext>
+            </DndContext>
+          </Box>
+        </Grid>
 
-        <div className="hidden xl:block"></div>
-      </div>
+        {/* Right Column: Empty for visual balance */}
+        <Grid size={{ xl: 3 }} sx={{ display: { xs: "none", xl: "block" } }} />
+      </Grid>
 
       <NotebookToolbar
         onAddBlock={addBlock}
         onToggleAllLocks={toggleAllLocks}
         areAllLocked={areAllLocked}
       />
-    </div>
+    </Box>
   );
 }

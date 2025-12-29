@@ -1,11 +1,23 @@
 import React from "react";
-import { Link, useNavigate, useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import confetti from "canvas-confetti";
-import type { Route } from "./+types/notebook";
+import {
+  Box,
+  Typography,
+  Button,
+  Breadcrumbs,
+  Container,
+  Stack,
+} from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 
+import type { Route } from "./+types/notebook";
 import { Notebook } from "~/ui/templates";
+
 import { useRoadmapData } from "~/context/RoadmapDataContext";
 import { useUserProgress } from "~/context/UserContext";
+import Link from "~/ui/atoms/Link";
 
 const CONFETTI_DURATION_MS = 2000;
 const CONFETTI_PARTICLE_COUNT = 3;
@@ -28,20 +40,23 @@ export default function NotebookRoute() {
 
   if (!notebook) {
     return (
-      <div className="max-w-2xl mx-auto py-16 text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-3">
+      <Container maxWidth="sm" sx={{ py: 16, textAlign: "center" }}>
+        <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
           Notebook not found
-        </h1>
-        <p className="text-gray-600 mb-8">
+        </Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
           The notebook you requested doesn’t exist.
-        </p>
-        <Link
+        </Typography>
+        <Button
+          component={Link}
           to="/roadmap"
-          className="inline-flex px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-colors shadow-md shadow-blue-200"
+          variant="contained"
+          color="primary"
+          startIcon={<ArrowBackIcon />}
         >
           Back to Roadmap
-        </Link>
-      </div>
+        </Button>
+      </Container>
     );
   }
 
@@ -87,46 +102,60 @@ export default function NotebookRoute() {
   };
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-4">
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <Link
-            to="/roadmap"
-            className="cursor-pointer hover:text-blue-600 font-medium transition-colors"
-          >
+    <Box
+      sx={{
+        animation: "fade-in 0.3s ease-out",
+        "@keyframes fade-in": {
+          "0%": { opacity: 0, transform: "translateY(16px)" },
+          "100%": { opacity: 1, transform: "translateY(0)" },
+        },
+      }}
+    >
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        justifyContent="space-between"
+        alignItems={{ xs: "flex-start", sm: "center" }}
+        spacing={2}
+        sx={{ mb: 4, pb: 2, borderBottom: 1, borderColor: "divider" }}
+      >
+        <Breadcrumbs
+          separator={<NavigateNextIcon fontSize="small" />}
+          aria-label="breadcrumb"
+        >
+          <Link to="/roadmap" color="inherit" underline="hover">
             Roadmap
           </Link>
-          <span className="text-gray-300">/</span>
-          <span className="font-bold text-gray-900 bg-gray-100 px-2 py-0.5 rounded">
-            {notebook.title}
-          </span>
-        </div>
-        <Link
-          to="/roadmap"
-          className="self-start sm:self-auto px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors flex items-center gap-2"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+          <Typography
+            color="text.primary"
+            sx={{
+              fontWeight: "bold",
+              bgcolor: "action.selected",
+              px: 1,
+              py: 0.25,
+              borderRadius: 1,
+            }}
           >
-            <path d="M19 12H5M12 19l-7-7 7-7" />
-          </svg>
-          Back to Roadmap
-        </Link>
-      </div>
+            {notebook.title}
+          </Typography>
+        </Breadcrumbs>
 
-      {/* Key ensures component resets when notebook changes */}
+        <Button
+          component={Link}
+          to="/roadmap"
+          variant="text"
+          color="inherit"
+          startIcon={<ArrowBackIcon />}
+          sx={{ fontWeight: "medium" }}
+        >
+          Back to Roadmap
+        </Button>
+      </Stack>
+
       <Notebook
         key={notebook.id}
         initialBlocks={notebook.blocks}
         onComplete={notebook.trackProgress ? handleComplete : undefined}
       />
-    </div>
+    </Box>
   );
 }

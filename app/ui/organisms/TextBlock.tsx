@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
-import type MDEditorType from "@uiw/react-md-editor";
+import MDEditor, { commands } from "@uiw/react-md-editor";
+import { Box, alpha, useTheme } from "@mui/material";
 import { NotebookBlock } from "~/ui/molecules/NotebookBlock";
+import { useColorMode } from "~/context/ThemeContext";
 
 export interface TextBlockProps {
   id: string;
@@ -23,23 +25,19 @@ function TextBlockContent({
   isEditing,
   setIsEditing,
 }: Omit<TextBlockContentProps, "onDelete">) {
+  const theme = useTheme();
+  const { mode } = useColorMode();
   const [value, setValue] = useState(initialContent);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  const [EditorModule, setEditorModule] = useState<typeof MDEditorType | null>(
-    null
-  );
-
-  useEffect(() => {
-    import("@uiw/react-md-editor").then((mod) => {
-      setEditorModule(mod.default);
-    });
-  }, []);
 
   // Sync content if it changes externally
   useEffect(() => {
     setValue(initialContent);
   }, [initialContent]);
+
+  const editorCommands = commands
+    .getCommands()
+    .filter((cmd) => cmd.name !== "fullscreen");
 
   const handleChange = (val: string | undefined) => {
     const newVal = val || "";
@@ -67,62 +65,76 @@ function TextBlockContent({
     };
   }, [isEditing, setIsEditing]);
 
-  if (!EditorModule) {
-    return (
-      <div className="p-4 text-gray-400 animate-pulse">Loading editor...</div>
-    );
-  }
-
-  const MDEditor = EditorModule;
-
   return (
-    <div
+    <Box
       ref={containerRef}
-      className={`group relative transition-all duration-200 rounded-md ${
-        isEditing
-          ? "ring-2 ring-blue-400 shadow-lg z-10"
-          : isLocked
-            ? "cursor-default border border-transparent"
-            : "hover:bg-gray-50 cursor-text border border-transparent hover:border-gray-200"
-      }`}
+      sx={{
+        position: "relative",
+        borderRadius: 1,
+        transition: theme.transitions.create([
+          "box-shadow",
+          "background-color",
+        ]),
+        ...(isEditing && {
+          zIndex: 10,
+          boxShadow: `0 0 0 2px ${theme.palette.primary.main}, ${theme.shadows[4]}`,
+        }),
+        ...(!isEditing &&
+          !isLocked && {
+            "&:hover": {
+              bgcolor: alpha(theme.palette.action.hover, 0.04),
+              boxShadow: `inset 0 0 0 1px ${theme.palette.divider}`,
+            },
+          }),
+      }}
     >
       {isEditing ? (
-        <div data-color-mode="light">
+        <Box data-color-mode={mode}>
           <MDEditor
             value={value}
             onChange={handleChange}
             preview="edit"
-            height={200}
-            visibleDragbar={false}
+            height={300}
+            visibleDragbar={true}
+            commands={editorCommands}
           />
-        </div>
+        </Box>
       ) : (
-        <div
-          onClick={() => {
-            if (isLocked) return;
-            setIsEditing(true);
-          }}
+        <Box
+          onClick={() => !isLocked && setIsEditing(true)}
           onKeyDown={(e) => {
-            if (isLocked) return;
-            if (e.key === "Enter" || e.key === " ") {
+            if (!isLocked && (e.key === "Enter" || e.key === " ")) {
               e.preventDefault();
               setIsEditing(true);
             }
           }}
           role="button"
           tabIndex={isLocked ? -1 : 0}
-          data-color-mode="light"
-          className={`p-3 sm:p-4 prose prose-sm sm:prose-slate max-w-none min-h-12 text-gray-900 focus:outline-hidden focus:ring-2 focus:ring-blue-400 rounded-md ${
-            !isLocked ? "min-h-24" : ""
-          }`}
+          data-color-mode={mode}
+          sx={{
+            p: { xs: 2, sm: 3 },
+            minHeight: isLocked ? 48 : 96,
+            cursor: isLocked ? "default" : "text",
+            borderRadius: 1,
+            color: "text.primary",
+            outline: "none",
+            "&:focus-visible": {
+              boxShadow: `0 0 0 2px ${theme.palette.primary.main}`,
+            },
+            // Maintain typography styles for Markdown content
+            "& .wmde-markdown": {
+              bgcolor: "transparent !important",
+              color: "inherit !important",
+              fontFamily: theme.typography.fontFamily,
+              fontSize: "0.95rem",
+              lineHeight: 1.6,
+            },
+          }}
         >
-          <MDEditor.Markdown
-            source={value}
-            style={{ backgroundColor: "transparent", color: "inherit" }}
-          />
-        </div>
+          <MDEditor.Markdown source={value} />
+        </Box>
       )}
-    </div>
+    </Box>
   );
 }
 
