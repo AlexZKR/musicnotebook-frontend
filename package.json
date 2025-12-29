@@ -9,8 +9,13 @@
     "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@react-router/node": "7.10.1",
     "@react-router/serve": "7.10.1",
+    "@uiw/react-md-editor": "^4.0.11",
+    "abcjs": "^6.5.2",
     "isbot": "^5.1.31",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
