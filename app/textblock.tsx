@@ -115,11 +115,13 @@ const TextBlock = ({
       ) : (
         <div
           onClick={() => setIsEditing(true)}
-          className="p-4 prose prose-slate max-w-none min-h-[3rem]"
+          // Force light mode colors for the viewer to ensure high contrast on white bg
+          data-color-mode="light"
+          className="p-4 prose prose-slate max-w-none min-h-[3rem] text-gray-900"
         >
           <MDEditor.Markdown
             source={value}
-            style={{ backgroundColor: "transparent" }}
+            style={{ backgroundColor: "transparent", color: "inherit" }}
           />
         </div>
       )}

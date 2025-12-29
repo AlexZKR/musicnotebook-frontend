@@ -30,24 +30,22 @@ export interface BlockData {
 
 const DEFAULT_BLOCKS: BlockData[] = [
   {
-    id: "welcome-text",
+    id: "default-1",
     type: "text",
-    content:
-      "# My Musical Notebook\n\nWelcome! This is an interactive document. You can add **text** explanations or **interactive music** blocks below.\n\n*Hover over the left side of any block to rearrange it.*",
+    content: "# New Notebook\n\nStart writing your music theory notes here.",
   },
   {
-    id: "demo-music",
+    id: "default-2",
     type: "music",
-    content: `T: C Major Scale
+    content: `T: Simple Scale
 M: 4/4
 L: 1/4
 K: C
-C D E F | G2 z2 |]`,
+C D E F | G A B c |]`,
   },
 ];
 
 // --- Sortable Wrapper Component ---
-// This handles the drag mechanics and the visual "Grip" handle
 function SortableBlockWrapper({
   id,
   children,
@@ -77,7 +75,7 @@ function SortableBlockWrapper({
       style={style}
       className="relative flex items-start gap-2 group/sortable mb-8"
     >
-      {/* Drag Handle - Only visible on hover */}
+      {/* Drag Handle */}
       <div
         {...attributes}
         {...listeners}
@@ -104,17 +102,21 @@ function SortableBlockWrapper({
         </svg>
       </div>
 
-      {/* The Actual Block Content */}
       <div className="flex-grow min-w-0">{children}</div>
     </div>
   );
 }
 
-// --- Main Notebook Component ---
-export default function Notebook() {
-  const [blocks, setBlocks] = useState<BlockData[]>(DEFAULT_BLOCKS);
+interface NotebookProps {
+  initialBlocks?: BlockData[];
+}
 
-  // DnD Sensors (Input methods)
+export default function Notebook({ initialBlocks }: NotebookProps) {
+  // Use passed blocks or fallback to default
+  const [blocks, setBlocks] = useState<BlockData[]>(
+    initialBlocks || DEFAULT_BLOCKS
+  );
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -153,7 +155,6 @@ export default function Notebook() {
   };
 
   const deleteBlock = (id: string) => {
-    // Confirm before delete usually good, but for speed skipping
     setBlocks((prev) => prev.filter((b) => b.id !== id));
   };
 
@@ -170,7 +171,6 @@ export default function Notebook() {
         >
           {blocks.map((block) => (
             <SortableBlockWrapper key={block.id} id={block.id}>
-              {/* Render the specific block type */}
               {block.type === "music" ? (
                 <MusicBlock
                   id={block.id}
@@ -191,7 +191,6 @@ export default function Notebook() {
         </SortableContext>
       </DndContext>
 
-      {/* "Add Block" Controls Floating at Bottom */}
       <div className="fixed bottom-8 left-1/2 -translate-x-1/2 flex gap-4 bg-white p-2 rounded-full shadow-lg border border-gray-200 z-50">
         <button
           onClick={() => addBlock("text")}
