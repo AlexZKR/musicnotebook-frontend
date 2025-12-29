@@ -556,7 +556,7 @@ const MusicBlock = ({
         {/* Preview Side */}
         <div className="w-full p-3 sm:p-4 flex flex-col justify-between bg-white">
           {/* HEADER ROW: Info & Buttons */}
-          <div className="flex flex-wrap justify-between items-start mb-3 sm:mb-4 gap-2 sm:gap-4 pl-8 min-h-[3rem]">
+          <div className="flex flex-wrap justify-between items-start mb-3 sm:mb-4 gap-2 sm:gap-4 pl-8 min-h-12">
             {/* LEFT: Info Display */}
             <div className="flex flex-col gap-1 justify-center">
               {!isLocked && (
@@ -591,7 +591,7 @@ const MusicBlock = ({
                 // Keep spacer if unlocked, or if Locked but no info showing?
                 // Actually if locked and no info, we might want cleaner UI.
                 // But keeping height prevents layout shift when clicking notes.
-                <div className="h-[2rem] w-full" aria-hidden="true"></div>
+                <div className="h-8 w-full" aria-hidden="true"></div>
               )}
             </div>
 
@@ -664,7 +664,7 @@ const MusicBlock = ({
 
             <div className="relative w-full h-48 sm:h-56 border border-gray-300 rounded bg-white overflow-hidden">
               <div
-                className="absolute inset-0 p-2 font-mono text-xs sm:text-sm whitespace-pre-wrap break-words pointer-events-none text-gray-900"
+                className="absolute inset-0 p-2 font-mono text-xs sm:text-sm whitespace-pre-wrap wrap-break-word pointer-events-none text-gray-900"
                 aria-hidden="true"
               >
                 {renderBackdrop()}

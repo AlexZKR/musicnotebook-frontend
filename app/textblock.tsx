@@ -132,8 +132,8 @@ const TextBlock = ({
             setIsEditing(true);
           }}
           data-color-mode="light"
-          className={`p-3 sm:p-4 prose prose-sm sm:prose-slate max-w-none min-h-[3rem] text-gray-900 ${
-            !isLocked ? "min-h-[6rem]" : ""
+          className={`p-3 sm:p-4 prose prose-sm sm:prose-slate max-w-none min-h-12 text-gray-900 ${
+            !isLocked ? "min-h-24" : ""
           }`}
         >
           <MDEditor.Markdown

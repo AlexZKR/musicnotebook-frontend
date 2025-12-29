@@ -45,7 +45,7 @@ const TopicNode = ({ data, isConnectable }: NodeProps<Node<TopicData>>) => {
         type="target"
         position={Position.Top}
         isConnectable={isConnectable}
-        className="!bg-gray-400 !w-3 !h-3"
+        className="bg-gray-400! w-3! h-3!"
       />
 
       <div className="flex flex-col items-center text-center">
@@ -66,7 +66,7 @@ const TopicNode = ({ data, isConnectable }: NodeProps<Node<TopicData>>) => {
         type="source"
         position={Position.Bottom}
         isConnectable={isConnectable}
-        className="!bg-gray-400 !w-3 !h-3"
+        className="bg-gray-400! w-3! h-3!"
       />
     </div>
   );

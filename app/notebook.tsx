@@ -218,7 +218,7 @@ function SortableBlockWrapper({
         </button>
       </div>
 
-      <div className="flex-grow min-w-0">{children}</div>
+      <div className="grow min-w-0">{children}</div>
     </div>
   );
 }

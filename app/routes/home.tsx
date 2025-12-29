@@ -350,16 +350,16 @@ export default function Home() {
       )}
 
       {/* --- MAIN CONTENT AREA --- */}
-      <main className="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full flex flex-col">
+      <main className="grow p-4 md:p-8 max-w-7xl mx-auto w-full flex flex-col">
         {/* 1. LANDING PAGE */}
         {view === "home" && (
-          <div className="flex flex-col items-center justify-center flex-grow py-12 md:py-20 text-center animate-in fade-in zoom-in-95 duration-500">
+          <div className="flex flex-col items-center justify-center grow py-12 md:py-20 text-center animate-in fade-in zoom-in-95 duration-500">
             <div className="mb-8 inline-block px-4 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-medium border border-blue-100">
               🎵 The future of music theory is interactive
             </div>
             <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 mb-8 tracking-tight leading-tight">
               Master Music Theory <br className="hidden md:block" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-indigo-600">
                 The Interactive Way
               </span>
             </h1>
@@ -399,7 +399,7 @@ export default function Home() {
             </div>
 
             {/* Tutorial Banner */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+            <div className="bg-linear-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-2xl shadow-sm border border-blue-100">
                   🎓
@@ -420,7 +420,7 @@ export default function Home() {
               </button>
             </div>
 
-            <div className="flex-grow min-h-[500px] border border-gray-200 rounded-2xl shadow-sm overflow-hidden relative">
+            <div className="grow min-h-[500px] border border-gray-200 rounded-2xl shadow-sm overflow-hidden relative">
               <Roadmap
                 nodes={nodes}
                 onNodesChange={onNodesChange}
@@ -539,13 +539,13 @@ export default function Home() {
               </p>
               <ul className="list-none space-y-4 pl-0">
                 <li className="flex gap-3">
-                  <div className="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center flex-shrink-0 text-xs font-bold">
+                  <div className="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center shrink-0 text-xs font-bold">
                     ✓
                   </div>
                   <span>Read explanations alongside the music notation.</span>
                 </li>
                 <li className="flex gap-3">
-                  <div className="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center flex-shrink-0 text-xs font-bold">
+                  <div className="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center shrink-0 text-xs font-bold">
                     ✓
                   </div>
                   <span>
@@ -554,7 +554,7 @@ export default function Home() {
                   </span>
                 </li>
                 <li className="flex gap-3">
-                  <div className="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center flex-shrink-0 text-xs font-bold">
+                  <div className="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center shrink-0 text-xs font-bold">
                     ✓
                   </div>
                   <span>
