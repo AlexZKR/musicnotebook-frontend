@@ -109,10 +109,10 @@ function SortableBlockWrapper({
 
 interface NotebookProps {
   initialBlocks?: BlockData[];
+  onComplete?: () => void; // New prop
 }
 
-export default function Notebook({ initialBlocks }: NotebookProps) {
-  // Use passed blocks or fallback to default
+export default function Notebook({ initialBlocks, onComplete }: NotebookProps) {
   const [blocks, setBlocks] = useState<BlockData[]>(
     initialBlocks || DEFAULT_BLOCKS
   );
@@ -160,6 +160,18 @@ export default function Notebook({ initialBlocks }: NotebookProps) {
 
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-8 pb-32">
+      {/* Complete Button at the top right */}
+      {onComplete && (
+        <div className="flex justify-end mb-8">
+          <button
+            onClick={onComplete}
+            className="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-full font-bold shadow-lg shadow-green-200 transition-all hover:scale-105 active:scale-95"
+          >
+            <span>✅</span> Mark as Done
+          </button>
+        </div>
+      )}
+
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}

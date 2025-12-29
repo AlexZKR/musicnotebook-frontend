@@ -4,21 +4,21 @@ import {
   MiniMap,
   Controls,
   Background,
-  useNodesState,
   useEdgesState,
   type Node,
   type Edge,
   Handle,
   Position,
   type NodeProps,
+  type OnNodesChange,
 } from "@xyflow/react";
 
 // --- Types ---
-// FIX: Added [key: string]: unknown to satisfy ReactFlow's Record<string, unknown> constraint
 export type TopicData = {
   title: string;
   subtitle: string;
   status: "locked" | "unlocked" | "completed";
+  justCompleted?: boolean; // New flag for animation
   [key: string]: unknown;
 };
 
@@ -33,8 +33,12 @@ const TopicNode = ({ data, isConnectable }: NodeProps<Node<TopicData>>) => {
 
   return (
     <div
-      className={`px-4 py-3 rounded-xl border-2 min-w-[200px] transition-all duration-200 ${
+      className={`px-4 py-3 rounded-xl border-2 min-w-[200px] transition-all duration-700 ${
         statusColors[data.status as "locked" | "unlocked" | "completed"]
+      } ${
+        data.justCompleted
+          ? "scale-110 ring-4 ring-green-400 shadow-xl shadow-green-200"
+          : "scale-100"
       }`}
     >
       <Handle
@@ -46,7 +50,9 @@ const TopicNode = ({ data, isConnectable }: NodeProps<Node<TopicData>>) => {
 
       <div className="flex flex-col items-center text-center">
         {data.status === "completed" && (
-          <span className="text-xs font-bold text-green-600 mb-1">✓ DONE</span>
+          <span className="text-xs font-bold text-green-600 mb-1 animate-in fade-in zoom-in duration-500">
+            ✓ DONE
+          </span>
         )}
         <strong className="text-sm font-bold uppercase tracking-wide">
           {data.title as string}
@@ -70,50 +76,6 @@ const nodeTypes = {
   topic: TopicNode,
 };
 
-// --- Initial Data ---
-const initialNodes: Node<TopicData>[] = [
-  {
-    id: "1",
-    type: "topic",
-    position: { x: 250, y: 0 },
-    data: {
-      title: "Musical Notation",
-      subtitle: "Staff, Clefs & Notes",
-      status: "completed",
-    },
-  },
-  {
-    id: "2",
-    type: "topic",
-    position: { x: 250, y: 150 },
-    data: {
-      title: "Intervals",
-      subtitle: "Distance between notes",
-      status: "unlocked",
-    },
-  },
-  {
-    id: "2-1",
-    type: "topic",
-    position: { x: 100, y: 300 },
-    data: {
-      title: "Simple Intervals",
-      subtitle: "2nds, 3rds, 4ths",
-      status: "unlocked", // Changed from locked to unlocked
-    },
-  },
-  {
-    id: "2-2",
-    type: "topic",
-    position: { x: 400, y: 300 },
-    data: {
-      title: "Compound Intervals",
-      subtitle: "9ths, 11ths, 13ths",
-      status: "unlocked", // Changed from locked to unlocked
-    },
-  },
-];
-
 const initialEdges: Edge[] = [
   { id: "e1-2", source: "1", target: "2", animated: true },
   { id: "e2-2-1", source: "2", target: "2-1" },
@@ -121,16 +83,20 @@ const initialEdges: Edge[] = [
 ];
 
 interface RoadmapProps {
+  nodes: Node<TopicData>[];
+  onNodesChange: OnNodesChange<Node<TopicData>>;
   onNodeClick: (nodeId: string, title: string) => void;
 }
 
-export default function Roadmap({ onNodeClick }: RoadmapProps) {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+export default function Roadmap({
+  nodes,
+  onNodesChange,
+  onNodeClick,
+}: RoadmapProps) {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
   const handleNodeClick = useCallback(
     (event: React.MouseEvent, node: Node) => {
-      // Cast node.data to TopicData to safely access properties
       const topicData = node.data as TopicData;
 
       // Only allow clicking if not locked

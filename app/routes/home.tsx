@@ -1,12 +1,16 @@
 import React, { useState } from "react";
 import type { Route } from "./+types/home";
 import Notebook, { type BlockData } from "~/notebook";
-import Roadmap from "~/roadmap";
+import Roadmap, { type TopicData } from "~/roadmap";
+import { useNodesState, type Node } from "@xyflow/react";
+import confetti from "canvas-confetti";
+
 import { MUSICAL_NOTATION_LESSON } from "~/demo-notes/musicalNotaionLesson";
 import { INTERVALS_LESSON } from "~/demo-notes/musicalIntervalsLesson";
 import { SIMPLE_INTERVALS_LESSON } from "~/demo-notes/simpleIntervalsLesson";
 import { COMPOUND_INTERVALS_LESSON } from "~/demo-notes/compoundIntervalsLesson";
 import { TUTORIAL_CONTENT } from "~/demo-notes/tutorialContent";
+import { initialNodes } from "~/demo-notes/initialRoadmap";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -20,12 +24,17 @@ type ViewState = "home" | "learning-path" | "about" | "notebook";
 export default function Home() {
   const [view, setView] = useState<ViewState>("home");
   const [currentTopic, setCurrentTopic] = useState<string | null>(null);
+  const [currentNodeId, setCurrentNodeId] = useState<string | null>(null);
   const [activeBlocks, setActiveBlocks] = useState<BlockData[] | undefined>(
     undefined
   );
 
+  // Controlled Nodes State
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+
   const handleNodeClick = (nodeId: string, title: string) => {
     setCurrentTopic(title);
+    setCurrentNodeId(nodeId);
 
     // Route to specific lessons based on Node ID
     if (nodeId === "1") {
@@ -37,7 +46,6 @@ export default function Home() {
     } else if (nodeId === "2-2") {
       setActiveBlocks(COMPOUND_INTERVALS_LESSON);
     } else {
-      // Fallback for nodes without content yet
       setActiveBlocks(undefined);
     }
 
@@ -46,11 +54,78 @@ export default function Home() {
 
   const handleTutorialClick = () => {
     setCurrentTopic("Tutorial");
+    setCurrentNodeId(null);
     setActiveBlocks(TUTORIAL_CONTENT);
     setView("notebook");
   };
 
   const handleBackToMap = () => {
+    setView("learning-path");
+    setCurrentTopic(null);
+    setActiveBlocks(undefined);
+  };
+
+  // --- CONFETTI & COMPLETION LOGIC ---
+  const handleLessonComplete = () => {
+    // 1. Trigger Confetti
+    const duration = 2000;
+    const end = Date.now() + duration;
+
+    const frame = () => {
+      confetti({
+        particleCount: 3,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0 },
+        colors: ["#60a5fa", "#34d399", "#f472b6"], // Blue, Green, Pink
+      });
+      confetti({
+        particleCount: 3,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1 },
+        colors: ["#60a5fa", "#34d399", "#f472b6"],
+      });
+
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    };
+    frame();
+
+    // 2. Update Node Status
+    if (currentNodeId) {
+      setNodes((nds) =>
+        nds.map((node) => {
+          if (node.id === currentNodeId) {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                status: "completed",
+                justCompleted: true, // Trigger CSS animation in roadmap
+              },
+            };
+          }
+          return node;
+        })
+      );
+
+      // 3. Remove "justCompleted" flag after animation
+      setTimeout(() => {
+        setNodes((nds) =>
+          nds.map((node) => {
+            if (node.id === currentNodeId) {
+              const { justCompleted, ...rest } = node.data;
+              return { ...node, data: rest };
+            }
+            return node;
+          })
+        );
+      }, 3000);
+    }
+
+    // 4. Return to Map
     setView("learning-path");
     setCurrentTopic(null);
     setActiveBlocks(undefined);
@@ -187,7 +262,11 @@ export default function Home() {
             </div>
 
             <div className="flex-grow min-h-[500px] border border-gray-200 rounded-2xl shadow-sm overflow-hidden relative">
-              <Roadmap onNodeClick={handleNodeClick} />
+              <Roadmap
+                nodes={nodes}
+                onNodesChange={onNodesChange}
+                onNodeClick={handleNodeClick}
+              />
             </div>
           </div>
         )}
@@ -229,7 +308,11 @@ export default function Home() {
             </div>
 
             {/* Key ensures component resets when topic changes */}
-            <Notebook key={currentTopic} initialBlocks={activeBlocks} />
+            <Notebook
+              key={currentTopic}
+              initialBlocks={activeBlocks}
+              onComplete={currentNodeId ? handleLessonComplete : undefined}
+            />
           </div>
         )}
 
