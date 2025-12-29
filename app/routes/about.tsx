@@ -1,8 +1,7 @@
 import React from "react";
 import { Link } from "react-router";
-import type { Route } from "./+types/about";
 
-export function meta({}: Route.MetaArgs) {
+export function meta() {
   return [{ title: "About | Music Notebook" }];
 }
 
@@ -42,10 +41,10 @@ export default function AboutRoute() {
         </div>
 
         <p>
-          This app uses <strong>ABC Notation</strong> for rendering music. It's
-          a simple, text-based format for music notation. While you don't need
-          to be an expert, knowing the basics helps you create your own
-          exercises.{" "}
+          This app uses <strong>ABC Notation</strong> for rendering music.
+          It&apos;s a simple, text-based format for music notation. While you
+          don&apos;t need to be an expert, knowing the basics helps you create
+          your own exercises.{" "}
           <Link
             to="/notebook/tutorial"
             className="text-blue-600 underline font-medium hover:text-blue-800"

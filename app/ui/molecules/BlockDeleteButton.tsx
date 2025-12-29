@@ -1,5 +1,5 @@
 import React from "react";
-import { TrashIcon } from "~/ui/atoms/icons/TrashIcon";
+import TrashIcon from "@mui/icons-material/Delete";
 
 interface BlockDeleteButtonProps {
   onClick: (e: React.MouseEvent) => void;

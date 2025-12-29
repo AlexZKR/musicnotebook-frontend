@@ -6,11 +6,16 @@ import {
   Scripts,
   ScrollRestoration,
 } from "react-router";
+import "@fontsource/roboto/300.css";
+import "@fontsource/roboto/400.css";
+import "@fontsource/roboto/500.css";
+import "@fontsource/roboto/700.css";
 
 import type { Route } from "./+types/root";
 import "./app.css";
 import { RoadmapDataProvider } from "~/context/RoadmapDataContext";
 import { UserProvider } from "~/context/UserContext";
+import { CssBaseline } from "@mui/material";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -30,11 +35,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
     <html lang="en">
       <head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="viewport" content="initial-scale=1, width=device-width" />
         <Meta />
         <Links />
       </head>
       <body>
+        <CssBaseline />
         <RoadmapDataProvider>
           <UserProvider>{children}</UserProvider>
         </RoadmapDataProvider>

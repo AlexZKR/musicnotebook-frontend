@@ -1,3 +1,5 @@
+import type { NoteTimingEvent } from "abcjs";
+
 const allPitches = [
   "C,,,,",
   "D,,,,",
@@ -127,11 +129,13 @@ export function tokenize(str: string) {
 export class CursorControl {
   rootSelector: string;
   cursor: SVGLineElement | null;
-  onHighlight: ((start: number, end: number, event?: any) => void) | null;
+  onHighlight:
+    | ((start: number, end: number, event?: NoteTimingEvent) => void)
+    | null;
 
   constructor(
     rootSelector: string,
-    onHighlight?: (start: number, end: number, event?: any) => void
+    onHighlight?: (start: number, end: number, event?: NoteTimingEvent) => void
   ) {
     this.rootSelector = rootSelector;
     this.cursor = null;
@@ -156,8 +160,8 @@ export class CursorControl {
     svg.appendChild(this.cursor);
   }
 
-  onEvent(ev: any) {
-    if (ev.measureStart && ev.left === null) return;
+  onEvent(ev: NoteTimingEvent) {
+    if (ev.measureStart && ev.left === undefined) return;
 
     // A. SVG Highlights
     const lastSelection = document.querySelectorAll(
@@ -166,17 +170,19 @@ export class CursorControl {
     lastSelection.forEach((el) => el.classList.remove("abcjs-highlight"));
 
     if (ev.elements) {
-      ev.elements.forEach((note: any) => {
-        note.forEach((path: Element) => path.classList.add("abcjs-highlight"));
+      ev.elements.forEach((note: HTMLElement[]) => {
+        note.forEach((path: HTMLElement) =>
+          path.classList.add("abcjs-highlight")
+        );
       });
     }
 
     // B. Move Red Cursor
-    if (this.cursor) {
+    if (this.cursor && ev.left !== undefined) {
       this.cursor.setAttribute("x1", String(ev.left - 2));
       this.cursor.setAttribute("x2", String(ev.left - 2));
-      this.cursor.setAttribute("y1", String(ev.top));
-      this.cursor.setAttribute("y2", String(ev.top + ev.height));
+      this.cursor.setAttribute("y1", String(ev.top ?? 0));
+      this.cursor.setAttribute("y2", String((ev.top ?? 0) + (ev.height ?? 0)));
     }
 
     // C. Trigger Text Editor Highlight & Info

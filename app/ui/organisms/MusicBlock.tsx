@@ -1,5 +1,12 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import abcjs from "abcjs";
+import abcjs, {
+  type AbcElem,
+  type ClickListenerAnalysis,
+  type ClickListenerDrag,
+  type NoteTimingEvent,
+  type MidiPitches,
+  type MidiGracePitches,
+} from "abcjs";
 import "abcjs/abcjs-audio.css";
 
 import {
@@ -11,10 +18,10 @@ import {
 } from "~/features/notebook/model/music";
 import { BlockDeleteButton } from "~/ui/molecules/BlockDeleteButton";
 import { NoteInfoDisplay } from "~/ui/molecules/NoteInfoDisplay";
-import { EditIcon } from "~/ui/atoms/icons/EditIcon";
-import { CloseIcon } from "~/ui/atoms/icons/CloseIcon";
-import { DragIcon } from "~/ui/atoms/icons/DragIcon";
-import { DragOffIcon } from "~/ui/atoms/icons/DragOffIcon";
+import EditIcon from "@mui/icons-material/Edit";
+import CloseIcon from "@mui/icons-material/Close";
+import DragIcon from "@mui/icons-material/OpenWith";
+import DragOffIcon from "@mui/icons-material/PanToolAltOutlined";
 
 export interface MusicBlockProps {
   id: string;
@@ -37,14 +44,8 @@ export default function MusicBlock({
   const [isEditing, setIsEditing] = useState(false);
   const [isDraggingEnabled, setIsDraggingEnabled] = useState(true);
 
-  useEffect(() => {
-    if (isLocked) {
-      setIsEditing(false);
-      setIsDraggingEnabled(false);
-    } else {
-      setIsDraggingEnabled(true);
-    }
-  }, [isLocked]);
+  const effectiveIsEditing = isLocked ? false : isEditing;
+  const effectiveIsDraggingEnabled = isLocked ? false : isDraggingEnabled;
 
   const [abcString, setAbcString] = useState(initialContent);
 
@@ -58,26 +59,29 @@ export default function MusicBlock({
     measure: number;
   } | null>(null);
 
-  const synthControlRef = useRef<any>(null);
+  const synthControlRef = useRef<abcjs.SynthObjectController | null>(null);
 
-  const handleContentChange = (newContent: string) => {
-    setAbcString(newContent);
-    onUpdate(newContent);
-  };
+  const handleContentChange = useCallback(
+    (newContent: string) => {
+      setAbcString(newContent);
+      onUpdate(newContent);
+    },
+    [onUpdate]
+  );
 
   const handleNoteClick = useCallback(
     (
-      abcelem: any,
+      abcelem: AbcElem,
       tuneNumber: number,
       classes: string,
-      analysis: any,
-      drag: any
+      analysis: ClickListenerAnalysis,
+      drag: ClickListenerDrag
     ) => {
       let newHighlight = null;
       let currentNoteName = "";
       let currentOctave = 0;
 
-      if (abcelem.startChar >= 0 && abcelem.endChar >= 0) {
+      if (abcelem.startChar !== undefined && abcelem.endChar !== undefined) {
         newHighlight = { start: abcelem.startChar, end: abcelem.endChar };
       }
 
@@ -88,7 +92,7 @@ export default function MusicBlock({
       ) {
         const step = drag ? drag.step : 0;
 
-        const shiftedPitches = abcelem.midiPitches.map((p: any) => {
+        const shiftedPitches: MidiPitches = abcelem.midiPitches.map((p) => {
           return { ...p, pitch: p.pitch + step };
         });
 
@@ -100,7 +104,11 @@ export default function MusicBlock({
         }
 
         abcjs.synth
-          .playEvent(shiftedPitches, abcelem.midiGraceNotePitches, 400)
+          .playEvent(
+            shiftedPitches,
+            abcelem.midiGraceNotePitches as MidiGracePitches,
+            400
+          )
           .catch((err) => console.warn("Synth error:", err));
       }
 
@@ -108,8 +116,8 @@ export default function MusicBlock({
         !isLocked &&
         drag &&
         drag.step &&
-        abcelem.startChar >= 0 &&
-        abcelem.endChar >= 0
+        abcelem.startChar !== undefined &&
+        abcelem.endChar !== undefined
       ) {
         const originalText = abcString.substring(
           abcelem.startChar,
@@ -144,14 +152,14 @@ export default function MusicBlock({
         setNoteInfo(null);
       }
     },
-    [abcString, isLocked]
+    [abcString, isLocked, handleContentChange]
   );
 
   useEffect(() => {
     const visualObj = abcjs.renderAbc(paperId, abcString, {
       responsive: "resize",
       add_classes: true,
-      dragging: isDraggingEnabled && !isLocked,
+      dragging: effectiveIsDraggingEnabled,
       clickListener: handleNoteClick,
       selectTypes: ["note"],
     })[0];
@@ -165,7 +173,7 @@ export default function MusicBlock({
 
       const cursorControl = new CursorControl(
         `#${paperId}`,
-        (start, end, event) => {
+        (start, end, event?: NoteTimingEvent) => {
           if (start === -1 || end === -1) {
             setHighlight(null);
             setNoteInfo(null);
@@ -207,7 +215,7 @@ export default function MusicBlock({
     paperId,
     audioId,
     handleNoteClick,
-    isDraggingEnabled,
+    effectiveIsDraggingEnabled,
     isLocked,
   ]);
 
@@ -242,7 +250,7 @@ export default function MusicBlock({
             <div className="flex flex-col gap-1 justify-center">
               {!isLocked && (
                 <p className="text-[10px] sm:text-xs text-gray-400">
-                  {isDraggingEnabled
+                  {effectiveIsDraggingEnabled
                     ? "Click any note to play it. Drag notes up or down to change their pitch."
                     : "Click notes to highlight them in the code editor."}
                 </p>
@@ -270,15 +278,19 @@ export default function MusicBlock({
                         : "bg-gray-100 text-gray-500 hover:bg-gray-200"
                     }`}
                     aria-label={
-                      isDraggingEnabled
+                      effectiveIsDraggingEnabled
                         ? "Disable Pitch Dragging"
                         : "Enable Pitch Dragging"
                     }
                   >
-                    {isDraggingEnabled ? <DragIcon /> : <DragOffIcon />}
+                    {effectiveIsDraggingEnabled ? (
+                      <DragIcon />
+                    ) : (
+                      <DragOffIcon />
+                    )}
                   </button>
                   <div className="hidden md:block absolute top-full mt-2 left-1/2 -translate-x-1/2 px-2 py-1 text-[10px] text-white bg-gray-800 rounded opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
-                    {isDraggingEnabled
+                    {effectiveIsDraggingEnabled
                       ? "Pitch Dragging Active"
                       : "Pitch Dragging Disabled"}
                   </div>
@@ -288,18 +300,20 @@ export default function MusicBlock({
                   <button
                     onClick={() => setIsEditing(!isEditing)}
                     className={`p-2 rounded-md transition-all touch-manipulation ${
-                      isEditing
+                      effectiveIsEditing
                         ? "bg-gray-800 text-white hover:bg-gray-700"
                         : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-blue-600"
                     }`}
                     aria-label={
-                      isEditing ? "Close Code Editor" : "Open Code Editor"
+                      effectiveIsEditing
+                        ? "Close Code Editor"
+                        : "Open Code Editor"
                     }
                   >
-                    {isEditing ? <CloseIcon /> : <EditIcon />}
+                    {effectiveIsEditing ? <CloseIcon /> : <EditIcon />}
                   </button>
                   <div className="hidden md:block absolute top-full mt-2 left-1/2 -translate-x-1/2 px-2 py-1 text-[10px] text-white bg-gray-800 rounded opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
-                    {isEditing ? "Close Editor" : "Edit Source Code"}
+                    {effectiveIsEditing ? "Close Editor" : "Edit Source Code"}
                   </div>
                 </div>
               </div>
@@ -318,7 +332,7 @@ export default function MusicBlock({
           </div>
         </div>
 
-        {isEditing && !isLocked && (
+        {effectiveIsEditing && !isLocked && (
           <div className="w-full p-3 sm:p-4 border-t border-gray-100 bg-gray-50 animate-in slide-in-from-top-2 fade-in duration-200">
             <h3 className="text-xs font-bold text-gray-500 uppercase mb-2 tracking-wider">
               ABC Notation Editor

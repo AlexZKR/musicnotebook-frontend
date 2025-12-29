@@ -1,8 +1,8 @@
 import React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { LockIcon } from "~/ui/atoms/icons/LockIcon";
-import { UnlockIcon } from "~/ui/atoms/icons/UnlockIcon";
+import LockIcon from "@mui/icons-material/Lock";
+import UnlockIcon from "@mui/icons-material/LockOpen";
 
 interface NotebookBlockProps {
   id: string;

@@ -1,10 +1,9 @@
 import React from "react";
 import { Outlet } from "react-router";
-import type { Route } from "./+types/_layout";
 
 import { AppNavBar } from "~/ui/organisms";
 
-export function meta({}: Route.MetaArgs) {
+export function meta() {
   return [
     { title: "Music Notebook" },
     { name: "description", content: "Interactive Music Learning" },

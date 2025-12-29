@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { useNodesState, type Node } from "@xyflow/react";
-import type { Route } from "./+types/roadmap";
 
 import RoadmapGraph from "~/ui/organisms/RoadmapGraph";
 import { useUserProgress } from "~/context/UserContext";
@@ -14,7 +13,7 @@ type RoadmapLocationState = {
   justCompletedNotebookId?: string;
 } | null;
 
-export function meta({}: Route.MetaArgs) {
+export function meta() {
   return [{ title: "Roadmap | Music Notebook" }];
 }
 
@@ -69,7 +68,7 @@ export default function RoadmapRoute() {
       setNodes((nds) =>
         nds.map((node) => {
           if (node.id !== justCompletedNotebookId) return node;
-          const { justCompleted, ...rest } = node.data;
+          const { justCompleted: _, ...rest } = node.data;
           return { ...node, data: rest };
         })
       );

@@ -1,7 +1,7 @@
 import React, {
   createContext,
+  useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -25,45 +25,48 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const { unlockOrder } = useRoadmapData();
-  const [completedNodeIds, setCompletedNodeIds] = useState<string[]>([]);
-
-  useEffect(() => {
+  const [completedNodeIds, setCompletedNodeIds] = useState<string[]>(() => {
+    if (typeof window === "undefined") return [];
     const saved = localStorage.getItem(PROGRESS_STORAGE_KEY);
     if (saved) {
       try {
-        setCompletedNodeIds(JSON.parse(saved));
+        return JSON.parse(saved);
       } catch (e) {
         console.error("Failed to parse progress", e);
       }
     }
-  }, []);
+    return [];
+  });
 
-  const markNodeCompleted = (nodeId: string) => {
+  const markNodeCompleted = useCallback((nodeId: string) => {
     setCompletedNodeIds((prev) => {
       if (prev.includes(nodeId)) return prev;
       const next = [...prev, nodeId];
       localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(next));
       return next;
     });
-  };
+  }, []);
 
-  const getNodeStatus = (nodeId: string): NodeStatus => {
-    if (completedNodeIds.includes(nodeId)) return "completed";
+  const getNodeStatus = useCallback(
+    (nodeId: string): NodeStatus => {
+      if (completedNodeIds.includes(nodeId)) return "completed";
 
-    const index = unlockOrder.indexOf(nodeId);
-    if (index === -1) return "unlocked";
-    if (index === 0) return "unlocked";
+      const index = unlockOrder.indexOf(nodeId);
+      if (index === -1) return "unlocked";
+      if (index === 0) return "unlocked";
 
-    const prevNodeId = unlockOrder[index - 1];
-    if (
-      typeof prevNodeId === "string" &&
-      completedNodeIds.includes(prevNodeId)
-    ) {
-      return "unlocked";
-    }
+      const prevNodeId = unlockOrder[index - 1];
+      if (
+        typeof prevNodeId === "string" &&
+        completedNodeIds.includes(prevNodeId)
+      ) {
+        return "unlocked";
+      }
 
-    return "locked";
-  };
+      return "locked";
+    },
+    [completedNodeIds, unlockOrder]
+  );
 
   const value = useMemo<UserContextType>(
     () => ({
@@ -73,7 +76,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         getNodeStatus,
       },
     }),
-    [completedNodeIds]
+    [completedNodeIds, markNodeCompleted, getNodeStatus]
   );
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

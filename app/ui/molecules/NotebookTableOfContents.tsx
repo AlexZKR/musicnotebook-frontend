@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import type { BlockData } from "~/features/notebook/model/block";
 import { getBlockTitle } from "~/features/notebook/model/block";
-import { ChevronDownIcon } from "~/ui/atoms/icons/ChevronDownIcon";
-import { ChevronRightIcon } from "~/ui/atoms/icons/ChevronRightIcon";
+import ChevronDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 
 interface NotebookTableOfContentsProps {
   blocks: BlockData[];

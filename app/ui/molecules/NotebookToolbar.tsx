@@ -1,7 +1,7 @@
 import React from "react";
 import type { BlockType } from "~/features/notebook/model/block";
-import { LockIcon } from "~/ui/atoms/icons/LockIcon";
-import { UnlockIcon } from "~/ui/atoms/icons/UnlockIcon";
+import LockIcon from "@mui/icons-material/Lock";
+import UnlockIcon from "@mui/icons-material/LockOpen";
 
 interface NotebookToolbarProps {
   onAddBlock: (type: BlockType) => void;

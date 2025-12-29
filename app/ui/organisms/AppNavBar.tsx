@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { NavLink } from "react-router";
 import { Logo } from "~/ui/molecules/Logo";
-import { MenuIcon } from "~/ui/atoms/icons/MenuIcon";
-import { CloseIcon } from "~/ui/atoms/icons/CloseIcon";
+import MenuIcon from "@mui/icons-material/Menu";
+import CloseIcon from "@mui/icons-material/Close";
 
 type AppNavBarProps = {
   onSignIn?: () => void;
