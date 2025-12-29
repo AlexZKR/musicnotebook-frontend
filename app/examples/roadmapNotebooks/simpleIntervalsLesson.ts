@@ -1,4 +1,4 @@
-import type { BlockData } from "~/notebook";
+import type { BlockData } from "~/features/notebook/model/block";
 
 export const SIMPLE_INTERVALS_LESSON: BlockData[] = [
   {
