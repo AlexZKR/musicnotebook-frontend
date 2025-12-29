@@ -104,8 +104,8 @@ const getBlockTitle = (block: BlockData) => {
   }
 
   // Max length truncate
-  if (title.length > 25) {
-    return title.substring(0, 25) + "...";
+  if (title.length > 50) {
+    return title.substring(0, 50) + "...";
   }
   return title;
 };
@@ -203,7 +203,7 @@ function TableOfContents({ blocks }: { blocks: BlockData[] }) {
   };
 
   return (
-    <div className="hidden xl:block w-64 flex-shrink-0">
+    <div className="hidden xl:block w-96 flex-shrink-0">
       <div className="sticky top-24 bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm max-h-[calc(100vh-8rem)] overflow-y-auto">
         <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 px-2">
           Contents
@@ -302,7 +302,7 @@ export default function Notebook({ initialBlocks, onComplete }: NotebookProps) {
     <div className="max-w-[1400px] mx-auto p-4 md:p-8 pb-32">
       <div className="flex gap-8 lg:gap-12 relative">
         {/* Sidebar Column (Left) - Using sticky positioning relative to viewport */}
-        <div className="hidden xl:block w-64 flex-shrink-0 relative">
+        <div className="hidden xl:block w-96 flex-shrink-0 relative">
           <div className="sticky top-24">
             <TableOfContents blocks={blocks} />
           </div>
