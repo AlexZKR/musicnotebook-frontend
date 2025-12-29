@@ -9,6 +9,7 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import { ProgressProvider } from "~/context/ProgressContext";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -33,7 +34,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        {children}
+        {/* Wrap the entire app in the Progress Provider */}
+        <ProgressProvider>{children}</ProgressProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
