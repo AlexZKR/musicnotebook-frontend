@@ -118,6 +118,14 @@ export default function NotebookRoute() {
               </Button>
             )}
           <Button
+            onClick={() => navigate("/notebook/1")}
+            variant="text"
+            color="primary"
+            sx={{ fontWeight: 600 }}
+          >
+            Tutorial
+          </Button>
+          <Button
             onClick={goBack}
             variant="text"
             color="inherit"

@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { NavLink } from "react-router";
-import { Logo } from "~/ui/atoms/Logo";
 import MenuIcon from "@mui/icons-material/Menu";
-import { ThemeToggle, NavButton } from "~/ui/atoms";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import LibraryMusicIcon from "@mui/icons-material/LibraryMusic";
+import { ThemeToggle, NavButton, TheoryPracticeNav, Logo } from "~/ui/atoms";
 import {
   AppBar,
   Toolbar,
@@ -14,6 +15,7 @@ import {
   Menu,
   MenuItem,
   Typography,
+  alpha,
 } from "@mui/material";
 
 type AppNavBarProps = {
@@ -36,45 +38,49 @@ export default function AppNavBar({ onSignIn }: AppNavBarProps) {
   const handleSignIn = () => {
     handleMenuClose();
     if (onSignIn) return onSignIn();
-    alert(
-      "To be implemented. You will be able to log in to track your progress."
-    );
+    alert("To be implemented.");
   };
 
   return (
     <AppBar
       position="sticky"
       color="default"
-      elevation={1}
+      elevation={0}
       sx={{
-        backgroundColor: "background.paper",
-        backdropFilter: "blur(8px)",
+        backgroundColor: alpha(theme.palette.background.paper, 0.8),
+        backdropFilter: "blur(12px)",
         borderBottom: 1,
         borderColor: "divider",
       }}
     >
-      <Toolbar sx={{ justifyContent: "space-between" }}>
-        <Logo onClick={handleMenuClose} />
+      <Toolbar sx={{ justifyContent: "space-between", py: 1 }}>
+        <Box sx={{ width: isMobile ? "auto" : 200 }}>
+          <Logo onClick={handleMenuClose} />
+        </Box>
 
-        {/* Desktop Navigation */}
-        {!isMobile && (
-          <Box display="flex" gap={2} alignItems="center">
-            <ThemeToggle />
-            <NavButton to="/courses">Courses</NavButton>
-            <NavButton to="/">Home</NavButton>
+        {!isMobile && <TheoryPracticeNav />}
+
+        {/* Right Side Actions */}
+        {!isMobile ? (
+          <Box
+            display="flex"
+            gap={1}
+            alignItems="center"
+            sx={{ width: 200, justifyContent: "flex-end" }}
+          >
             <NavButton to="/about">About</NavButton>
+            <ThemeToggle />
             <Button
               onClick={handleSignIn}
+              variant="outlined"
               color="inherit"
-              sx={{ fontWeight: 600, textTransform: "none" }}
+              size="small"
+              sx={{ fontWeight: 600, textTransform: "none", borderRadius: 2 }}
             >
               Sign in
             </Button>
           </Box>
-        )}
-
-        {/* Mobile Navigation */}
-        {isMobile && (
+        ) : (
           <Box display="flex" alignItems="center" gap={1}>
             <ThemeToggle />
             <IconButton
@@ -95,28 +101,34 @@ export default function AppNavBar({ onSignIn }: AppNavBarProps) {
             >
               <MenuItem
                 component={NavLink}
-                to="/roadmap"
+                to="/courses"
                 onClick={handleMenuClose}
               >
-                <Typography fontWeight={600}>Roadmap</Typography>
+                <ListItemIcon>
+                  <MenuBookIcon fontSize="small" />
+                </ListItemIcon>
+                <Typography fontWeight={600}>Theory</Typography>
               </MenuItem>
               <MenuItem
                 component={NavLink}
-                to="/"
-                end
+                to="/songbook"
                 onClick={handleMenuClose}
               >
-                <Typography fontWeight={600}>Home</Typography>
+                <ListItemIcon>
+                  <LibraryMusicIcon fontSize="small" />
+                </ListItemIcon>
+                <Typography fontWeight={600}>Practice</Typography>
               </MenuItem>
+              <Divider />
               <MenuItem
                 component={NavLink}
                 to="/about"
                 onClick={handleMenuClose}
               >
-                <Typography fontWeight={600}>About</Typography>
+                <Typography>About</Typography>
               </MenuItem>
               <MenuItem onClick={handleSignIn}>
-                <Typography fontWeight={600}>Sign in</Typography>
+                <Typography>Sign in</Typography>
               </MenuItem>
             </Menu>
           </Box>
@@ -125,3 +137,7 @@ export default function AppNavBar({ onSignIn }: AppNavBarProps) {
     </AppBar>
   );
 }
+
+// Helper for the mobile menu icon
+import ListItemIcon from "@mui/material/ListItemIcon";
+import Divider from "@mui/material/Divider";

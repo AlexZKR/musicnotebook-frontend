@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useParams, Navigate, useNavigate } from "react-router";
 import {
   Box,
@@ -9,7 +9,10 @@ import {
   Collapse,
   alpha,
   useTheme,
+  Chip,
+  IconButton,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import { useNodesState, type Node } from "@xyflow/react";
 
 import { useCourseData } from "~/context/CourseContext";
@@ -44,6 +47,10 @@ export default function TopicRoute() {
   const { getTopics, getNotebook, getGraphNodes, getGraphEdges } =
     useCourseData();
   const { completedNodeIds, getNodeStatus } = useUserProgress();
+  const [showTutorialBadge, setShowTutorialBadge] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return !localStorage.getItem("tutorialBadgeDismissed");
+  });
 
   // 1. Resolve Topic
   const courseIdInt = parseInt(courseId || "", 10);
@@ -121,8 +128,25 @@ export default function TopicRoute() {
     );
   }
 
+  const handleTutorialLaunch = () => {
+    navigate(`/notebook/1`);
+  };
+
+  const dismissTutorialBadge = () => {
+    localStorage.setItem("tutorialBadgeDismissed", "1");
+    setShowTutorialBadge(false);
+  };
+
   return (
-    <Box sx={{ flex: 1, minHeight: 0, overflow: "hidden", display: "flex" }}>
+    <Box
+      sx={{
+        flex: 1,
+        minHeight: 0,
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
       <Box
         sx={{
           flex: 1,
@@ -140,6 +164,17 @@ export default function TopicRoute() {
           totalCount={stats.total}
           variant="compact"
         />
+        {showTutorialBadge && (
+          <Box mb={2} display="flex" justifyContent="center">
+            <Chip
+              label="Try the tutorial notebook"
+              color="primary"
+              onClick={handleTutorialLaunch}
+              onDelete={dismissTutorialBadge}
+              deleteIcon={<CloseIcon fontSize="small" />}
+            />
+          </Box>
+        )}
 
         <Grid
           container

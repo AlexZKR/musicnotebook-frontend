@@ -4,7 +4,6 @@ export * from "./notebook/NotebookBlock";
 export * from "./notebook/NotebookTableOfContents";
 export * from "./notebook/NotebookToolbar";
 export * from "./notebook/NoteInfoDisplay";
-export * from "../atoms/Logo";
 export * from "./notebook/BlockSideControls";
 export { default as CourseCard } from "./course/CourseCard";
 export { default as CourseList } from "./course/CourseList";

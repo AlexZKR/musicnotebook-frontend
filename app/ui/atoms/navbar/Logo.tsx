@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Typography, alpha, useTheme } from "@mui/material";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
-import Link from "./Link";
+import Link from "../Link";
 
 interface LogoProps {
   onClick?: () => void;
