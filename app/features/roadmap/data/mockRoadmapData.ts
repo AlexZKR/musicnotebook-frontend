@@ -23,7 +23,7 @@ const lessonLibrary = [
 ];
 
 export const ROADMAP_NOTEBOOK_IDS = [
-  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
 ] as const;
 export type RoadmapNotebookId = (typeof ROADMAP_NOTEBOOK_IDS)[number];
 
@@ -40,6 +40,12 @@ const notebookDefinitions = [
   { id: 10, title: "Live Ear Training", lessonIndex: 1 },
   { id: 11, title: "Improvisation Warmup", lessonIndex: 3 },
   { id: 12, title: "Performance Techniques", lessonIndex: 4 },
+  { id: 13, title: "Polyrhythms Lab", lessonIndex: 4 },
+  { id: 14, title: "Ear Training Quartet", lessonIndex: 1 },
+  { id: 15, title: "Improvisation Prompts", lessonIndex: 3 },
+  { id: 16, title: "Sight Rhythm Reading", lessonIndex: 4 },
+  { id: 17, title: "Advanced Groove Patterns", lessonIndex: 4 },
+  { id: 18, title: "Performance Debrief", lessonIndex: 4 },
 ] as const;
 
 export const ROADMAP_NOTEBOOKS: Record<NotebookId, Notebook> =
@@ -76,7 +82,7 @@ export const ROADMAP_COURSES: CourseDefinition[] = [
     authorId: "user-2",
     title: "Applied Rhythm & Listening",
     description: "Connect time, feel, and improvisation to theory.",
-    topicOrder: [5, 6],
+    topicOrder: [5, 6, 7],
   },
 ];
 
@@ -138,6 +144,15 @@ const topicBases: TopicDefinition[] = [
     description: "Use rhythm and intervals to deliver confident performances.",
     position: { x: 520, y: 540 },
     notebookOrder: [12],
+  },
+  {
+    id: 7,
+    courseId: 3,
+    title: "Listening Marathon",
+    subtitle: "Keep the beat",
+    description: "Listen, respond, and keep building momentum.",
+    position: { x: 620, y: 540 },
+    notebookOrder: [8, 9, 13, 14, 15, 16, 17, 18],
   },
 ];
 

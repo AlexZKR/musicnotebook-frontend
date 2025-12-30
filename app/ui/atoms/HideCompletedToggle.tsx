@@ -18,6 +18,7 @@ export default function HideCompletedToggle({
 }: HideCompletedToggleProps) {
   return (
     <FormControlLabel
+      sx={{ ml: 0 }}
       control={
         <Switch
           checked={checked}

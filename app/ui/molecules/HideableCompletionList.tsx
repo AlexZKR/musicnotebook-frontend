@@ -22,6 +22,7 @@ type HideableCompletionListProps<T> = {
   showToggle?: boolean;
   spacing?: number;
   emptyState?: ReactNode | ((state: EmptyStateMeta) => ReactNode);
+  maxHeight?: number | string;
 };
 
 export default function HideableCompletionList<T>({
@@ -31,6 +32,7 @@ export default function HideableCompletionList<T>({
   showToggle = true,
   spacing = 2,
   emptyState,
+  maxHeight,
 }: HideableCompletionListProps<T>) {
   const [hideCompleted, setHideCompleted] = useState(false);
 
@@ -105,15 +107,29 @@ export default function HideableCompletionList<T>({
       )}
 
       {hasVisibleItems ? (
-        <Stack spacing={spacing}>
-          {prepared.map((entry) =>
-            renderItem(entry.item, {
-              originalIndex: entry.originalIndex,
-              isCompleted: entry.isCompleted,
-              isHidden: hideCompleted && entry.isCompleted,
-            })
-          )}
-        </Stack>
+        <Box
+          sx={{
+            ...(maxHeight
+              ? {
+                  maxHeight,
+                  overflowY: "auto",
+                  pt: 1,
+                  pb: 1,
+                  pr: 1,
+                }
+              : undefined),
+          }}
+        >
+          <Stack spacing={spacing}>
+            {prepared.map((entry) =>
+              renderItem(entry.item, {
+                originalIndex: entry.originalIndex,
+                isCompleted: entry.isCompleted,
+                isHidden: hideCompleted && entry.isCompleted,
+              })
+            )}
+          </Stack>
+        </Box>
       ) : (
         <Box mt={1}>{renderEmpty()}</Box>
       )}

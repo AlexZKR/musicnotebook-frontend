@@ -21,6 +21,7 @@ interface TopicListItemProps {
   index: number;
   totalNotebooks: number;
   completedNotebooks: number;
+  dense?: boolean;
 }
 
 export default function TopicListItem({
@@ -29,6 +30,7 @@ export default function TopicListItem({
   totalNotebooks,
   completedNotebooks,
   courseId,
+  dense = false,
 }: TopicListItemProps) {
   const theme = useTheme();
 
@@ -43,10 +45,10 @@ export default function TopicListItem({
     <Paper
       variant="outlined"
       sx={{
-        p: 3,
+        p: dense ? 2 : 3,
         display: "flex",
         flexDirection: { xs: "column", sm: "row" },
-        gap: 3,
+        gap: dense ? 2 : 3,
         borderRadius: 3,
         transition: "all 0.2s ease-in-out",
         borderColor: isCompleted ? "success.light" : "divider",
@@ -64,15 +66,15 @@ export default function TopicListItem({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          width: 56,
-          height: 56,
+          width: dense ? 44 : 56,
+          height: dense ? 44 : 56,
           borderRadius: 2.5,
           bgcolor: isCompleted
             ? alpha(theme.palette.success.main, 0.1)
             : alpha(theme.palette.primary.main, 0.08),
           color: isCompleted ? "success.main" : "primary.main",
           fontWeight: 800,
-          fontSize: "1.25rem",
+          fontSize: dense ? "1rem" : "1.25rem",
           flexShrink: 0,
         }}
       >
@@ -82,9 +84,9 @@ export default function TopicListItem({
       {/* Content Area */}
       <Box sx={{ flexGrow: 1, minWidth: 0 }}>
         {/* Header Section */}
-        <Box mb={2}>
+        <Box mb={dense ? 1.5 : 2}>
           <Typography
-            variant="h6"
+            variant={dense ? "subtitle1" : "h6"}
             fontWeight="800"
             sx={{ lineHeight: 1.2, mb: 0.5 }}
           >
@@ -105,7 +107,7 @@ export default function TopicListItem({
         </Box>
 
         {/* Description */}
-        {topic.description && (
+        {!dense && topic.description && (
           <Typography
             variant="body2"
             color="text.secondary"
@@ -139,7 +141,7 @@ export default function TopicListItem({
             variant="determinate"
             value={percentage}
             sx={{
-              height: 8,
+              height: dense ? 6 : 8,
               borderRadius: 4,
               bgcolor: alpha(theme.palette.grey[500], 0.12),
               "& .MuiLinearProgress-bar": {
@@ -159,12 +161,13 @@ export default function TopicListItem({
           variant={isCompleted ? "outlined" : "contained"}
           color={isCompleted ? "success" : "primary"}
           endIcon={<ArrowForwardIcon />}
+          size={dense ? "small" : "medium"}
           sx={{
             borderRadius: "99px",
             textTransform: "none",
             fontWeight: 700,
-            px: 3,
-            minWidth: 140,
+            px: dense ? 2 : 3,
+            minWidth: dense ? 120 : 140,
             boxShadow: isCompleted ? "none" : 2,
           }}
         >

@@ -2,7 +2,6 @@ import React, { useMemo } from "react";
 import { useParams, Link as RouterLink } from "react-router";
 import {
   Container,
-  Stack,
   Box,
   Typography,
   Button,
@@ -79,10 +78,27 @@ export default function CourseRoute() {
   }
 
   return (
-    <Box>
-      <Container maxWidth="lg">
+    <Box
+      sx={{
+        flex: 1,
+        minHeight: 0,
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <Container
+        maxWidth="lg"
+        sx={{
+          py: 0,
+          display: "flex",
+          flexDirection: "column",
+          flex: 1,
+          overflow: "hidden",
+        }}
+      >
         {/* Back Navigation */}
-        <Box sx={{ py: 2 }}>
+        <Box sx={{ pb: 1 }}>
           <Button
             component={RouterLink}
             to="/courses"
@@ -101,6 +117,7 @@ export default function CourseRoute() {
             completedNotebooks: stats.completed,
             totalNotebooks: stats.total,
           }}
+          variant="compact"
         />
 
         {/* Topics List Controls */}
@@ -108,10 +125,10 @@ export default function CourseRoute() {
           display="flex"
           justifyContent="space-between"
           alignItems="center"
-          mb={4}
+          mb={2}
         >
           <Box display="flex" alignItems="center" gap={2}>
-            <Typography variant="h4" fontWeight="bold">
+            <Typography variant="h5" fontWeight="bold">
               Topics
             </Typography>
             <Box
@@ -132,12 +149,13 @@ export default function CourseRoute() {
         </Box>
 
         {/* Topics List */}
-        <Stack spacing={2} pb={12}>
+        <Box sx={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
           <HideableCompletionList
             items={topics}
             isItemCompleted={(topic) => isTopicCompleted(topic.id)}
             showToggle={hasCompletedTopics && !isCourseFullyCompleted}
             spacing={2}
+            maxHeight="100%"
             emptyState={({ hideCompleted: isHidden }) =>
               isHidden ? (
                 <Typography color="text.secondary" fontStyle="italic">
@@ -163,12 +181,13 @@ export default function CourseRoute() {
                     index={meta.originalIndex}
                     totalNotebooks={total}
                     completedNotebooks={completed}
+                    dense
                   />
                 </Collapse>
               );
             }}
           />
-        </Stack>
+        </Box>
       </Container>
     </Box>
   );

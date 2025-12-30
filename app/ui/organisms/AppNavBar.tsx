@@ -60,7 +60,7 @@ export default function AppNavBar({ onSignIn }: AppNavBarProps) {
         {!isMobile && (
           <Box display="flex" gap={2} alignItems="center">
             <ThemeToggle />
-            <NavButton to="/roadmap">Roadmap</NavButton>
+            <NavButton to="/courses">Courses</NavButton>
             <NavButton to="/">Home</NavButton>
             <NavButton to="/about">About</NavButton>
             <Button

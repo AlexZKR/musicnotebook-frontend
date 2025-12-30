@@ -25,31 +25,47 @@ export default function CoursesRoute() {
   const { courses, topics } = useCourseData();
 
   return (
-    <Container maxWidth="lg">
-      <Stack spacing={8} py={{ xs: 4, md: 8 }}>
+    <Box
+      sx={{
+        flex: 1,
+        minHeight: 0,
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <Container
+        maxWidth="lg"
+        sx={{
+          py: 0,
+          display: "flex",
+          flexDirection: "column",
+          flex: 1,
+          overflow: "hidden",
+        }}
+      >
         {/* 1. Hero / Header Section */}
-        <Stack spacing={3} textAlign="center" alignItems="center">
+        <Stack spacing={2} textAlign="center" alignItems="center">
           <Box
             sx={{
               display: "inline-flex",
               alignItems: "center",
               justifyContent: "center",
-              p: 1.5,
+              p: 1,
               borderRadius: 3,
               bgcolor: alpha(theme.palette.primary.main, 0.1),
               color: "primary.main",
-              mb: 1,
             }}
           >
-            <AutoStoriesIcon fontSize="large" />
+            <AutoStoriesIcon fontSize="medium" />
           </Box>
 
           <Typography
-            variant="h2"
+            variant="h3"
             component="h1"
             sx={{
               fontWeight: 800,
-              fontSize: { xs: "2.5rem", md: "3.5rem" },
+              fontSize: { xs: "1.75rem", md: "2.25rem" },
               letterSpacing: "-0.02em",
             }}
           >
@@ -57,10 +73,17 @@ export default function CoursesRoute() {
           </Typography>
 
           <Typography
-            variant="h6"
+            variant="body1"
             color="text.secondary"
             maxWidth="md"
-            sx={{ fontWeight: "normal", lineHeight: 1.6 }}
+            sx={{
+              fontWeight: "normal",
+              lineHeight: 1.45,
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+            }}
           >
             Explore music theory collections created by the community. These
             aren&apos;t just courses—they are{" "}
@@ -74,23 +97,22 @@ export default function CoursesRoute() {
             variant="contained"
             startIcon={<AddIcon />}
             sx={{
-              mt: 2,
               borderRadius: "99px",
               boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.25)}`,
             }}
           />
         </Stack>
 
-        {/* 2. Course Grid (Fixed Layout) */}
-        <Box>
+        {/* 2. Course Grid */}
+        <Box sx={{ flex: 1, minHeight: 0, overflow: "hidden", mt: 2 }}>
           <Box
             display="flex"
             justifyContent="space-between"
             alignItems="center"
-            mb={4}
+            mb={2}
             borderBottom={1}
             borderColor="divider"
-            pb={2}
+            pb={1}
           >
             <Typography variant="h5" fontWeight="bold">
               All Courses
@@ -100,14 +122,24 @@ export default function CoursesRoute() {
             </Typography>
           </Box>
 
-          <CourseList
-            courses={courses}
-            topics={topics}
-            completedCourseIds={completedCourseIds}
-            completedNodeIds={completedNodeIds}
-          />
+          <Box
+            sx={{
+              height: "100%",
+              overflowY: "auto",
+              pr: 1,
+              pt: 1,
+              pb: 2,
+            }}
+          >
+            <CourseList
+              courses={courses}
+              topics={topics}
+              completedCourseIds={completedCourseIds}
+              completedNodeIds={completedNodeIds}
+            />
+          </Box>
         </Box>
-      </Stack>
-    </Container>
+      </Container>
+    </Box>
   );
 }

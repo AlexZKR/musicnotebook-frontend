@@ -12,22 +12,29 @@ interface CourseHeaderProps {
     completedNotebooks: number;
     totalNotebooks: number;
   };
+  variant?: "default" | "compact";
 }
 
-export default function CourseHeader({ course, progress }: CourseHeaderProps) {
+export default function CourseHeader({
+  course,
+  progress,
+  variant = "default",
+}: CourseHeaderProps) {
+  const isCompact = variant === "compact";
+
   return (
     <Box
       sx={{
-        py: { xs: 4, md: 5 },
+        py: isCompact ? { xs: 2, md: 3 } : { xs: 4, md: 5 },
         borderBottom: 1,
         borderColor: "divider",
-        mb: 6,
+        mb: isCompact ? { xs: 2, md: 3 } : 6,
       }}
     >
-      <Grid container spacing={6} alignItems="center">
+      <Grid container spacing={isCompact ? 3 : 6} alignItems="center">
         {/* Left Column: Course Info */}
         <Grid size={{ xs: 12, md: 7, lg: 8 }}>
-          <Stack spacing={3}>
+          <Stack spacing={isCompact ? 1.5 : 3}>
             {/* Meta Badges */}
             <Stack direction="row" spacing={1}>
               <Chip
@@ -48,22 +55,35 @@ export default function CourseHeader({ course, progress }: CourseHeaderProps) {
             {/* Titles */}
             <Box>
               <Typography
-                variant="h2"
+                variant={isCompact ? "h3" : "h2"}
                 component="h1"
                 sx={{
                   fontWeight: 800,
                   letterSpacing: "-0.02em",
-                  fontSize: { xs: "2.5rem", md: "3.5rem" },
-                  mb: 2,
+                  fontSize: isCompact
+                    ? { xs: "1.75rem", md: "2.25rem" }
+                    : { xs: "2.5rem", md: "3.5rem" },
+                  mb: isCompact ? 1 : 2,
                   lineHeight: 1.1,
                 }}
               >
                 {course.title}
               </Typography>
               <Typography
-                variant="h5"
+                variant={isCompact ? "body1" : "h5"}
                 color="text.secondary"
-                sx={{ fontWeight: "normal", lineHeight: 1.6 }}
+                sx={{
+                  fontWeight: "normal",
+                  lineHeight: isCompact ? 1.45 : 1.6,
+                  ...(isCompact
+                    ? {
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                      }
+                    : undefined),
+                }}
               >
                 {course.description}
               </Typography>

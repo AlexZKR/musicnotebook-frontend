@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo } from "react";
 import { useParams, Navigate, useNavigate } from "react-router";
 import {
-  Container,
   Box,
   Typography,
   Alert,
@@ -116,34 +115,50 @@ export default function TopicRoute() {
     return <Navigate to="/courses" />;
   if (!topic) {
     return (
-      <Container sx={{ py: 8 }}>
+      <Box sx={{ py: 8 }}>
         <Alert severity="error">Topic not found.</Alert>
-      </Container>
+      </Box>
     );
   }
 
   return (
-    <Container maxWidth="xl" sx={{ px: { xs: 2, md: 4 } }}>
-      <Box py={{ xs: 4, md: 5 }}>
+    <Box sx={{ flex: 1, minHeight: 0, overflow: "hidden", display: "flex" }}>
+      <Box
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         {/* Header Section */}
         <TopicHeader
           topic={topic}
           courseId={topic.courseId}
           completedCount={stats.completed}
           totalCount={stats.total}
+          variant="compact"
         />
 
-        <Grid container spacing={4} alignItems="stretch">
+        <Grid
+          container
+          spacing={2}
+          alignItems="stretch"
+          sx={{ flex: 1, minHeight: 0 }}
+        >
           {/* LEFT PANEL: Notebook List */}
           <Grid size={{ xs: 12, lg: 4 }}>
             <Paper
               variant="outlined"
               sx={{
                 height: "100%",
-                maxHeight: { lg: "800px" },
-                overflowY: "auto",
+                minHeight: 0,
+                overflow: "hidden",
                 bgcolor: "transparent",
                 border: "none",
+                display: "flex",
+                flexDirection: "column",
               }}
             >
               <Box mb={2} px={1}>
@@ -155,36 +170,43 @@ export default function TopicRoute() {
                 </Typography>
               </Box>
 
-              <HideableCompletionList
-                items={notebooks}
-                isItemCompleted={(notebook) => completedSet.has(notebook.id)}
-                showToggle={completedSet.size > 0}
-                spacing={2}
-                emptyState={({ itemCount, hideCompleted }) =>
-                  itemCount === 0 ? (
-                    <Alert severity="info" variant="outlined">
-                      No lessons available yet.
-                    </Alert>
-                  ) : hideCompleted ? (
-                    <Alert severity="info" variant="outlined">
-                      All lessons are completed and hidden.
-                    </Alert>
-                  ) : (
-                    <Alert severity="info" variant="outlined">
-                      No lessons match the current filter.
-                    </Alert>
-                  )
-                }
-                renderItem={(notebook, meta) => (
-                  <Collapse key={notebook.id} in={!meta.isHidden} unmountOnExit>
-                    <NotebookListItem
-                      notebook={notebook}
-                      index={meta.originalIndex}
-                      status={getNodeStatus(notebook.id)}
-                    />
-                  </Collapse>
-                )}
-              />
+              <Box sx={{ flex: 1, minHeight: 0 }}>
+                <HideableCompletionList
+                  items={notebooks}
+                  isItemCompleted={(notebook) => completedSet.has(notebook.id)}
+                  showToggle={completedSet.size > 0}
+                  spacing={2}
+                  maxHeight="100%"
+                  emptyState={({ itemCount, hideCompleted }) =>
+                    itemCount === 0 ? (
+                      <Alert severity="info" variant="outlined">
+                        No lessons available yet.
+                      </Alert>
+                    ) : hideCompleted ? (
+                      <Alert severity="info" variant="outlined">
+                        All lessons are completed and hidden.
+                      </Alert>
+                    ) : (
+                      <Alert severity="info" variant="outlined">
+                        No lessons match the current filter.
+                      </Alert>
+                    )
+                  }
+                  renderItem={(notebook, meta) => (
+                    <Collapse
+                      key={notebook.id}
+                      in={!meta.isHidden}
+                      unmountOnExit
+                    >
+                      <NotebookListItem
+                        notebook={notebook}
+                        index={meta.originalIndex}
+                        status={getNodeStatus(notebook.id)}
+                      />
+                    </Collapse>
+                  )}
+                />
+              </Box>
             </Paper>
           </Grid>
 
@@ -193,7 +215,8 @@ export default function TopicRoute() {
             <Paper
               variant="outlined"
               sx={{
-                height: "600px",
+                height: "100%",
+                minHeight: 0,
                 borderRadius: 3,
                 overflow: "hidden",
                 position: "relative",
@@ -230,6 +253,6 @@ export default function TopicRoute() {
           </Grid>
         </Grid>
       </Box>
-    </Container>
+    </Box>
   );
 }
