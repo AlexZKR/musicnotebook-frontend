@@ -1,14 +1,11 @@
 import React from "react";
-import { Link } from "react-router";
-import {
-  Box,
-  Button,
-  Container,
-  Typography,
-  Stack,
-  useTheme,
-} from "@mui/material";
+import { Box } from "@mui/material";
+import { Container } from "@mui/material";
+import { Typography } from "@mui/material";
+import { Stack } from "@mui/material";
+import { useTheme } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import { HeroButton } from "~/ui/atoms";
 
 export function meta() {
   return [
@@ -67,26 +64,18 @@ export default function IndexRoute() {
 
         {/* 4. The Action Buttons */}
         <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-          <Button
-            component={Link}
+          <HeroButton
             to="/courses"
+            label="See Courses"
             variant="contained"
-            size="large"
             endIcon={<ArrowForwardIcon />}
-            sx={{ px: 4, py: 1.5, fontSize: "1.1rem" }}
-          >
-            See Courses
-          </Button>
-          <Button
-            component={Link}
+          />
+          <HeroButton
             to="/about"
+            label="Learn More"
             variant="outlined"
-            size="large"
-            color="inherit" // Uses neutral color (gray/black/white)
-            sx={{ px: 4, py: 1.5, fontSize: "1.1rem" }}
-          >
-            Learn More
-          </Button>
+            color="inherit"
+          />
         </Stack>
       </Stack>
     </Container>

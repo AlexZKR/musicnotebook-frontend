@@ -4,3 +4,4 @@ export * from "./NotebookEditor";
 export { default as TextBlock } from "./TextBlock";
 export { default as MusicBlock } from "./MusicBlock";
 export { default as AppNavBar } from "./AppNavBar";
+export { default as CourseHeader } from "./course/CourseHeader";

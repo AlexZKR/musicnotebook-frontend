@@ -1,63 +1,112 @@
 import React from "react";
+import {
+  Container,
+  Stack,
+  Typography,
+  Box,
+  alpha,
+  useTheme,
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import AutoStoriesIcon from "@mui/icons-material/AutoStories";
 
 import { useCourseData } from "~/context/CourseContext";
 import { useUserProgress } from "~/context/UserContext";
-import { Button, Container, Paper, Stack, Typography } from "@mui/material";
-import Link from "~/ui/atoms/Link";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import { CourseList } from "~/ui/molecules";
+import { HeroButton } from "~/ui/atoms";
+
 export function meta() {
-  return [{ title: "Courses | Music Notebook" }];
+  return [{ title: "Community Courses | Music Notebook" }];
 }
 
 export default function CoursesRoute() {
-  const { completedCourseIds } = useUserProgress();
-  const { courses } = useCourseData();
+  const theme = useTheme();
+  const { completedCourseIds, completedNodeIds } = useUserProgress();
+  const { courses, topics } = useCourseData();
 
   return (
-    <Container maxWidth="md">
-      <Stack spacing={4}>
-        <Stack alignContent={"center"} alignItems={"center"}>
-          <Typography variant="h3">Courses</Typography>
-          <Typography variant="subtitle1">
-            Explore the courses below. Click a course to open its topics.
+    <Container maxWidth="lg">
+      <Stack spacing={8} py={{ xs: 4, md: 8 }}>
+        {/* 1. Hero / Header Section */}
+        <Stack spacing={3} textAlign="center" alignItems="center">
+          <Box
+            sx={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              p: 1.5,
+              borderRadius: 3,
+              bgcolor: alpha(theme.palette.primary.main, 0.1),
+              color: "primary.main",
+              mb: 1,
+            }}
+          >
+            <AutoStoriesIcon fontSize="large" />
+          </Box>
+
+          <Typography
+            variant="h2"
+            component="h1"
+            sx={{
+              fontWeight: 800,
+              fontSize: { xs: "2.5rem", md: "3.5rem" },
+              letterSpacing: "-0.02em",
+            }}
+          >
+            Community Courses
           </Typography>
+
+          <Typography
+            variant="h6"
+            color="text.secondary"
+            maxWidth="md"
+            sx={{ fontWeight: "normal", lineHeight: 1.6 }}
+          >
+            Explore music theory collections created by the community. These
+            aren&apos;t just courses—they are{" "}
+            <strong>interactive notebooks</strong>. Clone them, edit the notes,
+            and make the knowledge your own.
+          </Typography>
+
+          <HeroButton
+            to="/notebook/create"
+            label="Create Your Notebook"
+            variant="contained"
+            startIcon={<AddIcon />}
+            sx={{
+              mt: 2,
+              borderRadius: "99px",
+              boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.25)}`,
+            }}
+          />
         </Stack>
 
-        <Stack direction="row" spacing={2}>
-          {courses.map((course) => {
-            const isCompleted = completedCourseIds.includes(course.id);
-            return (
-              <Paper
-                key={course.id}
-                variant="outlined"
-                sx={{
-                  flexGrow: 1,
-                  minHeight: 200,
-                  borderRadius: 2,
-                  overflow: "hidden",
-                  position: "relative",
-                  boxShadow: 1,
-                  bgcolor: isCompleted ? "success.light" : "background.paper",
-                }}
-              >
-                <Typography variant="h4">{course.title}</Typography>
-                <Typography variant="subtitle1">
-                  {course.description}
-                </Typography>
-                <Button
-                  component={Link}
-                  to={`/course/${course.id}`}
-                  variant="contained"
-                  size="large"
-                  endIcon={<ArrowForwardIcon />}
-                  sx={{ px: 4, py: 1.5, fontSize: "1.1rem" }}
-                >
-                  Explore {course.title}
-                </Button>
-              </Paper>
-            );
-          })}
-        </Stack>
+        {/* 2. Course Grid (Fixed Layout) */}
+        <Box>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={4}
+            borderBottom={1}
+            borderColor="divider"
+            pb={2}
+          >
+            <Typography variant="h5" fontWeight="bold">
+              All Courses
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Showing {courses.length} courses
+            </Typography>
+          </Box>
+
+          <CourseList
+            courses={courses}
+            topics={topics}
+            completedCourseIds={completedCourseIds}
+            completedNodeIds={completedNodeIds}
+          />
+        </Box>
       </Stack>
     </Container>
   );

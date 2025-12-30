@@ -6,3 +6,7 @@ export * from "./notebook/NotebookToolbar";
 export * from "./notebook/NoteInfoDisplay";
 export * from "../atoms/Logo";
 export * from "./notebook/BlockSideControls";
+export { default as CourseCard } from "./course/CourseCard";
+export { default as CourseList } from "./course/CourseList";
+export { default as TopicListItem } from "./course/TopicListItem";
+export { default as CourseProgressCard } from "./course/CourseProgressCard";

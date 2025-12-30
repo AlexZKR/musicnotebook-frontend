@@ -10,17 +10,19 @@ import type {
   NotebookId,
   NotebookNodeDefinition,
 } from "~/features/roadmap/model/notebook";
-import type { Topic } from "~/features/roadmap/model/topic";
+import type { Topic, RoadmapGraphData } from "~/features/roadmap/model/topic";
 import {
   ROADMAP_COURSES,
-  ROADMAP_GRAPH,
   ROADMAP_NOTEBOOKS,
   ROADMAP_TOPICS,
   getRoadmapNotebook,
   isRoadmapNotebookId,
 } from "~/features/roadmap/data/mockRoadmapData";
 
-const buildGraphNodes = (topics: Topic[]): Node<NotebookNodeDefinition>[] =>
+const buildGraphNodes = (
+  topics: Topic[],
+  graph: RoadmapGraphData
+): Node<NotebookNodeDefinition>[] =>
   topics.map((topic) => {
     const [notebookId] = topic.notebookOrder;
     return {
@@ -33,8 +35,7 @@ const buildGraphNodes = (topics: Topic[]): Node<NotebookNodeDefinition>[] =>
         title: topic.title,
         subtitle: topic.subtitle,
         description: topic.description,
-        status:
-          notebookId === ROADMAP_GRAPH.unlockOrder[0] ? "unlocked" : "locked",
+        status: notebookId === graph.unlockOrder[0] ? "unlocked" : "locked",
         position: topic.position,
       },
     };
@@ -62,6 +63,11 @@ export function CourseProvider({
   children: React.ReactNode;
   value?: CourseData;
 }) {
+  const graphData: RoadmapGraphData = ROADMAP_TOPICS[0]?.roadmapGraph ?? {
+    edges: [],
+    unlockOrder: [],
+  };
+
   const defaultValue: CourseData = {
     courses: ROADMAP_COURSES,
     topics: ROADMAP_TOPICS,
@@ -70,9 +76,9 @@ export function CourseProvider({
       ROADMAP_COURSES.find((course) => course.id === id) ?? null,
     getTopics: (courseId: CourseId) =>
       ROADMAP_TOPICS.filter((topic) => topic.courseId === courseId),
-    getGraphNodes: () => buildGraphNodes(ROADMAP_TOPICS),
-    getGraphEdges: () => ROADMAP_GRAPH.edges,
-    getUnlockOrder: () => ROADMAP_GRAPH.unlockOrder,
+    getGraphNodes: () => buildGraphNodes(ROADMAP_TOPICS, graphData),
+    getGraphEdges: () => graphData.edges,
+    getUnlockOrder: () => graphData.unlockOrder,
     isNotebookId: isRoadmapNotebookId,
     getNotebook: getRoadmapNotebook,
   };

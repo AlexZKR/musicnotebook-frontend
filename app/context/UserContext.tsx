@@ -9,6 +9,7 @@ import { useCourseData } from "~/context/CourseContext";
 import type { CourseId } from "~/features/roadmap/model/course";
 import type { NodeStatus, NotebookId } from "~/features/roadmap/model/notebook";
 import type { TopicId } from "~/features/roadmap/model/topic";
+import { MOCK_USER_CURRENT } from "~/features/roadmap/data/mockRoadmapData";
 
 type UserProgress = {
   completedNodeIds: readonly NotebookId[];
@@ -25,7 +26,6 @@ type UserContextType = {
 };
 
 const PROGRESS_STORAGE_KEY = "music-notebook-progress";
-
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
@@ -34,7 +34,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [completedNodeIds, setCompletedNodeIds] = useState<
     readonly NotebookId[]
   >(() => {
-    if (typeof window === "undefined") return [];
+    if (typeof window === "undefined")
+      return MOCK_USER_CURRENT.completedNotebookIds;
     const saved = localStorage.getItem(PROGRESS_STORAGE_KEY);
     if (saved) {
       try {
@@ -43,7 +44,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         console.error("Failed to parse progress", e);
       }
     }
-    return [];
+    return MOCK_USER_CURRENT.completedNotebookIds;
   });
 
   const markNodeCompleted = useCallback((nodeId: NotebookId) => {
@@ -77,10 +78,12 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     if (topics.length === 0) return [];
     const completedNotebookSet = new Set<NotebookId>(completedNodeIds);
     return topics
-      .filter((topic) =>
-        topic.notebookOrder.every((notebookId) =>
-          completedNotebookSet.has(notebookId)
-        )
+      .filter(
+        (topic) =>
+          topic.notebookOrder.length > 0 &&
+          topic.notebookOrder.every((notebookId) =>
+            completedNotebookSet.has(notebookId)
+          )
       )
       .map((topic) => topic.id);
   }, [completedNodeIds, topics]);
