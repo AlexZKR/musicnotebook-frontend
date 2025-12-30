@@ -54,6 +54,7 @@ export default function NotebookNode({
         minWidth: { xs: 160, sm: 200 },
         transition: "all 0.4s ease-in-out",
         textAlign: "center",
+        cursor: data.status === "locked" ? "not-allowed" : "pointer",
         ...styles,
         // Completion Animation
         ...(data.justCompleted && {

@@ -108,7 +108,7 @@ export default function TopicRoute() {
   }, [notebooks, completedNodeIds]);
 
   const handleNodeClick = (nodeId: number) => {
-    navigate(`/course/${courseIdInt}/topic/${topicIdInt}/notebook/${nodeId}`);
+    navigate(`/notebook/${nodeId}`);
   };
 
   if (isNaN(topicIdInt) || Number.isNaN(courseIdInt))

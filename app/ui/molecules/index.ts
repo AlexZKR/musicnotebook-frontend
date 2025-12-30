@@ -1,5 +1,5 @@
 // Atomic Design: Molecules barrel export
-export { default as TopicNode } from "./roadmap/NotebookNode";
+export { default as TopicNode } from "./topicGraph/NotebookNode";
 export * from "./notebook/NotebookBlock";
 export * from "./notebook/NotebookTableOfContents";
 export * from "./notebook/NotebookToolbar";

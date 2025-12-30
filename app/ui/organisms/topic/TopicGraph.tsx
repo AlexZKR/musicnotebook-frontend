@@ -11,7 +11,7 @@ import {
   type Edge,
 } from "@xyflow/react";
 import { alpha, Box, useTheme } from "@mui/material";
-import NotebookNode from "~/ui/molecules/roadmap/NotebookNode";
+import NotebookNode from "~/ui/molecules/topicGraph/NotebookNode";
 import type {
   NotebookId,
   NotebookNodeDefinition,
