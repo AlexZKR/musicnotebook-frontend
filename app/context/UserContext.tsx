@@ -6,10 +6,10 @@ import React, {
   useState,
 } from "react";
 import { useCourseData } from "~/context/CourseContext";
-import type { CourseId } from "~/features/roadmap/model/course";
-import type { NodeStatus, NotebookId } from "~/features/roadmap/model/notebook";
-import type { TopicId } from "~/features/roadmap/model/topic";
-import { MOCK_USER_CURRENT } from "~/features/roadmap/data/mockRoadmapData";
+import type { CourseId } from "~/features/theory/model/course";
+import type { NodeStatus, NotebookId } from "~/features/theory/model/notebook";
+import type { TopicId } from "~/features/theory/model/topic";
+import { MOCK_USER_CURRENT } from "~/features/theory/data/mockTheoryData";
 
 type UserProgress = {
   completedNodeIds: readonly NotebookId[];

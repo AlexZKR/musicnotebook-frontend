@@ -4,7 +4,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import ClassIcon from "@mui/icons-material/Class";
 import CourseProgressCard from "~/ui/molecules/course/CourseProgressCard";
 
-import type { CourseDefinition } from "~/features/roadmap/model/course";
+import type { CourseDefinition } from "~/features/theory/model/course";
 
 interface CourseHeaderProps {
   course: CourseDefinition;

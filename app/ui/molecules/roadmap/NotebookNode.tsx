@@ -1,7 +1,7 @@
 import React from "react";
 import { Handle, Position } from "@xyflow/react";
 import { Box, Typography, useTheme, alpha } from "@mui/material"; // Added MUI imports
-import type { NotebookNodeDefinition } from "~/features/roadmap/model/notebook";
+import type { NotebookNodeDefinition } from "~/features/theory/model/notebook";
 
 export default function NotebookNode({
   data,

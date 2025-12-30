@@ -22,7 +22,7 @@ import type {
   Notebook,
   NotebookId,
   NotebookNodeDefinition,
-} from "~/features/roadmap/model/notebook";
+} from "~/features/theory/model/notebook";
 
 export function meta({
   params,

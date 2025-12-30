@@ -1,6 +1,6 @@
-import type { CourseDefinition } from "~/features/roadmap/model/course";
-import type { NotebookId } from "~/features/roadmap/model/notebook";
-import type { Topic } from "~/features/roadmap/model/topic";
+import type { CourseDefinition } from "~/features/theory/model/course";
+import type { NotebookId } from "~/features/theory/model/notebook";
+import type { Topic } from "~/features/theory/model/topic";
 
 export type CourseProgress = {
   topicCount: number;

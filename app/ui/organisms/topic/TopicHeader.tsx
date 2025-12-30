@@ -13,7 +13,7 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SchoolIcon from "@mui/icons-material/School";
 
-import type { Topic } from "~/features/roadmap/model/topic";
+import type { Topic } from "~/features/theory/model/topic";
 
 interface TopicHeaderProps {
   topic: Topic;

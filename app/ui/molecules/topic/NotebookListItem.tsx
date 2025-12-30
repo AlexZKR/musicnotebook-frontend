@@ -15,8 +15,8 @@ import LockIcon from "@mui/icons-material/Lock";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import EditIcon from "@mui/icons-material/Edit";
 
-import type { Notebook } from "~/features/roadmap/model/notebook";
-import type { NodeStatus } from "~/features/roadmap/model/notebook";
+import type { Notebook } from "~/features/theory/model/notebook";
+import type { NodeStatus } from "~/features/theory/model/notebook";
 
 interface NotebookListItemProps {
   notebook: Notebook;

@@ -13,7 +13,7 @@ import {
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
-import type { Topic } from "~/features/roadmap/model/topic";
+import type { Topic } from "~/features/theory/model/topic";
 
 interface TopicListItemProps {
   topic: Topic;

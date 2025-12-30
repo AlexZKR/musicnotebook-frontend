@@ -1,10 +1,10 @@
 import React, { useMemo } from "react";
 import { Box } from "@mui/material";
 
-import type { CourseDefinition } from "~/features/roadmap/model/course";
-import type { NotebookId } from "~/features/roadmap/model/notebook";
-import type { Topic } from "~/features/roadmap/model/topic";
-import { getCourseProgress } from "~/features/roadmap/utils/courseProgress";
+import type { CourseDefinition } from "~/features/theory/model/course";
+import type { NotebookId } from "~/features/theory/model/notebook";
+import type { Topic } from "~/features/theory/model/topic";
+import { getCourseProgress } from "~/features/theory/utils/courseProgress";
 import CourseCard from "./CourseCard";
 
 type Props = {

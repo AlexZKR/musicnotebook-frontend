@@ -4,20 +4,20 @@ import type { Edge, Node } from "@xyflow/react";
 import type {
   CourseDefinition,
   CourseId,
-} from "~/features/roadmap/model/course";
+} from "~/features/theory/model/course";
 import type {
   Notebook,
   NotebookId,
   NotebookNodeDefinition,
-} from "~/features/roadmap/model/notebook";
-import type { Topic, TopicId } from "~/features/roadmap/model/topic";
+} from "~/features/theory/model/notebook";
+import type { Topic, TopicId } from "~/features/theory/model/topic";
 import {
   ROADMAP_COURSES,
   ROADMAP_NOTEBOOKS,
   ROADMAP_TOPICS,
   getRoadmapNotebook,
   isRoadmapNotebookId,
-} from "~/features/roadmap/data/mockRoadmapData";
+} from "~/features/theory/data/mockTheoryData";
 
 const topicLookup = new Map<TopicId, Topic>();
 const notebookToTopic = new Map<NotebookId, Topic>();

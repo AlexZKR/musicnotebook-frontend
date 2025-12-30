@@ -15,7 +15,7 @@ import NotebookNode from "~/ui/molecules/roadmap/NotebookNode";
 import type {
   NotebookId,
   NotebookNodeDefinition,
-} from "~/features/roadmap/model/notebook";
+} from "~/features/theory/model/notebook";
 import { useColorMode } from "~/context/ThemeContext";
 
 const NODE_TYPES = {
