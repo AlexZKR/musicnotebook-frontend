@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import MDEditor, { commands } from "@uiw/react-md-editor";
 import { Box, alpha, useTheme } from "@mui/material";
-import { NotebookBlock } from "~/ui/molecules/NotebookBlock";
+import { NotebookBlock } from "~/ui/molecules/notebook/NotebookBlock";
 import { useColorMode } from "~/context/ThemeContext";
 
 export interface TextBlockProps {

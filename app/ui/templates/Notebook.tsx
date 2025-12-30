@@ -1,7 +1,7 @@
 import React from "react";
 import type { BlockData } from "~/features/notebook/model/block";
 import { DEFAULT_BLOCKS } from "~/features/notebook/model/block";
-import { NotebookEditor } from "~/ui/organisms/NotebookEditor";
+import { NotebookEditor } from "~/ui/organisms/notebook/NotebookEditor";
 
 export interface NotebookProps {
   initialBlocks?: BlockData[];

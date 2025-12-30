@@ -13,7 +13,7 @@ import "@fontsource/roboto/700.css";
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import { RoadmapDataProvider } from "~/context/RoadmapDataContext";
+import { CourseProvider } from "~/context/CourseContext";
 import { UserProvider } from "~/context/UserContext";
 import { CssBaseline } from "@mui/material";
 import { ThemeContextProvider } from "./context/ThemeContext";
@@ -42,12 +42,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <ThemeContextProvider>
-          <RoadmapDataProvider>
+          <CourseProvider>
             <UserProvider>
               <CssBaseline />
               {children}
             </UserProvider>
-          </RoadmapDataProvider>
+          </CourseProvider>
           <ScrollRestoration />
           <Scripts />
         </ThemeContextProvider>
