@@ -1,12 +1,12 @@
-import type { Edge } from "@xyflow/react";
+import type { Edge, Node } from "@xyflow/react";
 import type { CourseId } from "./course";
-import type { NotebookId } from "./notebook";
+import type { NotebookId, NotebookNodeDefinition } from "./notebook";
 
 export type TopicId = number;
 
-export type RoadmapGraphData = {
+export type TopicGraphData = {
+  nodes: Node<NotebookNodeDefinition>[];
   edges: Edge[];
-  unlockOrder: readonly NotebookId[];
 };
 
 export type Topic = {
@@ -23,5 +23,5 @@ export type Topic = {
   };
 
   notebookOrder: readonly NotebookId[];
-  roadmapGraph: RoadmapGraphData;
+  topicGraph: TopicGraphData;
 };

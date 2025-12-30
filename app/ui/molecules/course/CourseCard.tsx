@@ -44,6 +44,7 @@ export default function CourseCard({
       : status === "in-progress"
         ? "primary"
         : "default";
+  const isInProgress = status === "in-progress";
   return (
     <Paper
       variant="outlined"
@@ -56,12 +57,19 @@ export default function CourseCard({
         transition: "all 0.2s ease-in-out",
         position: "relative",
         overflow: "hidden",
-        borderColor: isCompleted ? "success.light" : "divider",
+        borderColor: isCompleted
+          ? "success.light"
+          : isInProgress
+            ? "primary.light"
+            : "divider",
         bgcolor: isCompleted
           ? (theme) => alpha(theme.palette.success.main, 0.04)
-          : "background.paper",
+          : isInProgress
+            ? (theme) => alpha(theme.palette.primary.main, 0.04)
+            : "background.paper",
+        boxShadow: isInProgress ? 2 : undefined,
         "&:hover": {
-          borderColor: "primary.main",
+          borderColor: isCompleted ? "success.main" : "primary.main",
           boxShadow: 4,
           transform: "translateY(-4px)",
         },
@@ -100,15 +108,15 @@ export default function CourseCard({
                 color={statusColor === "default" ? undefined : statusColor}
                 variant={status === "not-started" ? "outlined" : "filled"}
                 size="small"
+                sx={{
+                  ...(isInProgress && {
+                    borderColor: "primary.main",
+                    backgroundColor: (theme) =>
+                      alpha(theme.palette.primary.main, 0.08),
+                    color: "primary.main",
+                  }),
+                }}
               />
-              {isCompleted && (
-                <Chip
-                  label="Done"
-                  color="success"
-                  size="small"
-                  icon={<CheckCircleIcon />}
-                />
-              )}
             </Stack>
           </Box>
 
@@ -160,7 +168,11 @@ export default function CourseCard({
             endIcon={<ArrowForwardIcon />}
             sx={{ borderRadius: 2, textTransform: "none", fontWeight: 700 }}
           >
-            {isCompleted ? "Review Course" : "Start Learning"}
+            {isCompleted
+              ? "Review Course"
+              : status === "in-progress"
+                ? "Continue Learning"
+                : "Start Learning"}
           </Button>
         </Stack>
       </Box>

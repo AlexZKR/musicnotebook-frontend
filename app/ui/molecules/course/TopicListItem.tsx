@@ -17,6 +17,7 @@ import type { Topic } from "~/features/roadmap/model/topic";
 
 interface TopicListItemProps {
   topic: Topic;
+  courseId: number;
   index: number;
   totalNotebooks: number;
   completedNotebooks: number;
@@ -27,6 +28,7 @@ export default function TopicListItem({
   index,
   totalNotebooks,
   completedNotebooks,
+  courseId,
 }: TopicListItemProps) {
   const theme = useTheme();
 
@@ -153,7 +155,7 @@ export default function TopicListItem({
       <Box sx={{ alignSelf: { sm: "center" }, flexShrink: 0 }}>
         <Button
           component={RouterLink}
-          to={`/topic/${topic.id}`}
+          to={`/course/${courseId}/topic/${topic.id}`}
           variant={isCompleted ? "outlined" : "contained"}
           color={isCompleted ? "success" : "primary"}
           endIcon={<ArrowForwardIcon />}

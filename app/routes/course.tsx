@@ -163,6 +163,7 @@ export default function CourseRoute() {
               <Collapse key={topic.id} in={isVisible} unmountOnExit>
                 <TopicListItem
                   topic={topic}
+                  courseId={course.id}
                   index={index}
                   totalNotebooks={total}
                   completedNotebooks={completed}

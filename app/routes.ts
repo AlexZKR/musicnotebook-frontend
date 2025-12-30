@@ -12,7 +12,7 @@ export default [
 
     route("courses", "routes/courses.tsx"),
     route("course/:courseId", "routes/course.tsx"),
-    route("topic/:topicId", "routes/topic.tsx"),
+    route("course/:courseId/topic/:topicId", "routes/topic.tsx"),
 
     route("notebook/:notebookId", "routes/notebook.tsx"),
   ]),

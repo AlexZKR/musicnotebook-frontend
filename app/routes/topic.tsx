@@ -1,40 +1,86 @@
 import React, { useEffect, useMemo } from "react";
-import { useLocation, useNavigate } from "react-router";
+import { useParams, Navigate, useNavigate } from "react-router";
+import {
+  Container,
+  Stack,
+  Box,
+  Typography,
+  Alert,
+  Grid,
+  Paper,
+  alpha,
+  useTheme,
+} from "@mui/material";
 import { useNodesState, type Node } from "@xyflow/react";
 
-import RoadmapGraph from "~/ui/organisms/RoadmapGraph";
 import { useCourseData } from "~/context/CourseContext";
 import { useUserProgress } from "~/context/UserContext";
+import { TopicHeader, RoadmapGraph } from "~/ui/organisms";
+import { NotebookListItem } from "~/ui/molecules";
+
 import type {
-  NotebookId,
+  Notebook,
   NotebookNodeDefinition,
 } from "~/features/roadmap/model/notebook";
-import { Paper, Stack, Typography } from "@mui/material";
-import Banner from "~/ui/atoms/Banner";
 
-const JUST_COMPLETED_CLEAR_DELAY_MS = 3000;
-
-type TopicLocationState = {
-  justCompletedNotebookId?: NotebookId;
-} | null;
-
-export function meta() {
-  return [{ title: "Topic | Music Notebook" }];
+export function meta({
+  params,
+}: {
+  params: { courseId: string; topicId: string };
+}) {
+  return [
+    {
+      title: `Course ${params.courseId} · Topic ${params.topicId} | Music Notebook`,
+    },
+  ];
 }
 
 export default function TopicRoute() {
+  const { courseId, topicId } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
-  const locationState = location.state as TopicLocationState;
+  const theme = useTheme();
 
+  const { getTopics, getNotebook, getGraphNodes, getGraphEdges } =
+    useCourseData();
   const { completedNodeIds, getNodeStatus } = useUserProgress();
-  const { getGraphNodes } = useCourseData();
-  const topicNodes = useMemo(() => getGraphNodes(), [getGraphNodes]);
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(
-    topicNodes as Node<NotebookNodeDefinition>[]
+  // 1. Resolve Topic
+  const courseIdInt = parseInt(courseId || "", 10);
+  const topicIdInt = parseInt(topicId || "", 10);
+  const courseTopics = useMemo(
+    () => (Number.isNaN(courseIdInt) ? [] : getTopics(courseIdInt)),
+    [getTopics, courseIdInt]
+  );
+  const topic = useMemo(
+    () => courseTopics.find((t) => t.id === topicIdInt),
+    [courseTopics, topicIdInt]
   );
 
+  // 2. Resolve Notebooks (List Data)
+  const notebooks = useMemo(() => {
+    if (!topic) return [];
+    return topic.notebookOrder
+      .map((notebookId) => getNotebook(notebookId))
+      .filter((n): n is Notebook => n !== null);
+  }, [topic, getNotebook]);
+
+  // 3. Resolve Graph Nodes (Graph Data)
+  // Filter the global node list to only show nodes belonging to this topic
+  const initialTopicNodes = useMemo(
+    () => (topic ? getGraphNodes(topic.id) : []),
+    [getGraphNodes, topic]
+  );
+  const initialTopicEdges = useMemo(
+    () => (topic ? getGraphEdges(topic.id) : []),
+    [getGraphEdges, topic]
+  );
+
+  // 4. Initialize React Flow State
+  const [nodes, setNodes, onNodesChange] = useNodesState(
+    initialTopicNodes as Node<NotebookNodeDefinition>[]
+  );
+
+  // 5. Sync Node Status (Locked/Completed) with User Progress
   useEffect(() => {
     setNodes((nds) =>
       nds.map((node) => ({
@@ -47,81 +93,122 @@ export default function TopicRoute() {
     );
   }, [completedNodeIds, getNodeStatus, setNodes]);
 
-  useEffect(() => {
-    const justCompletedNotebookId = locationState?.justCompletedNotebookId;
-    if (!justCompletedNotebookId) return;
+  // 6. Calculate Progress Stats
+  const stats = useMemo(() => {
+    const total = notebooks.length;
+    const completedSet = new Set(completedNodeIds);
+    const completed = notebooks.filter((n) => completedSet.has(n.id)).length;
+    return { total, completed };
+  }, [notebooks, completedNodeIds]);
 
-    setNodes((nds) =>
-      nds.map((node) => {
-        if (node.data.id !== justCompletedNotebookId) return node;
-        return {
-          ...node,
-          data: {
-            ...node.data,
-            status: "completed",
-            justCompleted: true,
-          },
-        };
-      })
+  const handleNodeClick = (nodeId: number) => {
+    navigate(`/course/${courseIdInt}/topic/${topicIdInt}/notebook/${nodeId}`);
+  };
+
+  if (isNaN(topicIdInt) || Number.isNaN(courseIdInt))
+    return <Navigate to="/courses" />;
+  if (!topic) {
+    return (
+      <Container sx={{ py: 8 }}>
+        <Alert severity="error">Topic not found.</Alert>
+      </Container>
     );
-
-    navigate(".", { replace: true, state: null });
-
-    const timeoutId = window.setTimeout(() => {
-      setNodes((nds) =>
-        nds.map((node) => {
-          if (node.data.id !== justCompletedNotebookId) return node;
-          const { justCompleted: _, ...rest } = node.data;
-          return { ...node, data: rest };
-        })
-      );
-    }, JUST_COMPLETED_CLEAR_DELAY_MS);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [locationState?.justCompletedNotebookId, navigate, setNodes]);
-
-  const handleNodeClick = (nodeId: NotebookId) => {
-    navigate(`/notebook/${nodeId}`);
-  };
-
-  const handleTutorialClick = () => {
-    navigate("/notebook/tutorial");
-  };
+  }
 
   return (
-    <Stack spacing={4}>
-      <Stack alignContent={"center"} alignItems={"center"}>
-        <Typography variant="h3">Your Roadmap</Typography>
-        <Typography variant="subtitle1">
-          Explore the graph below. Click a topic to open its notebook.
-        </Typography>
-      </Stack>
-
-      <Banner
-        icon="🎓"
-        title="New here?"
-        description="Take the interactive tutorial to learn how to use the notebook features."
-        actionLabel="Start Tutorial"
-        onActionClick={handleTutorialClick}
-      />
-
-      <Paper
-        variant="outlined"
-        sx={{
-          flexGrow: 1,
-          minHeight: 500,
-          borderRadius: 2,
-          overflow: "hidden",
-          position: "relative",
-          boxShadow: 1,
-        }}
-      >
-        <RoadmapGraph
-          nodes={nodes}
-          onNodesChange={onNodesChange}
-          onNodeClick={(nodeId) => handleNodeClick(nodeId)}
+    <Container maxWidth="xl" sx={{ px: { xs: 2, md: 4 } }}>
+      <Box py={{ xs: 4, md: 5 }}>
+        {/* Header Section */}
+        <TopicHeader
+          topic={topic}
+          courseId={topic.courseId}
+          completedCount={stats.completed}
+          totalCount={stats.total}
         />
-      </Paper>
-    </Stack>
+
+        <Grid container spacing={4} alignItems="stretch">
+          {/* LEFT PANEL: Notebook List */}
+          <Grid size={{ xs: 12, lg: 4 }}>
+            <Paper
+              variant="outlined"
+              sx={{
+                height: "100%",
+                maxHeight: { lg: "800px" },
+                overflowY: "auto",
+                bgcolor: "transparent",
+                border: "none",
+              }}
+            >
+              <Box mb={2} px={1}>
+                <Typography variant="h6" fontWeight="bold" gutterBottom>
+                  Lesson List
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {notebooks.length} interactive lessons in this module.
+                </Typography>
+              </Box>
+
+              <Stack spacing={2}>
+                {notebooks.length > 0 ? (
+                  notebooks.map((notebook, index) => (
+                    <NotebookListItem
+                      key={notebook.id}
+                      notebook={notebook}
+                      index={index}
+                      status={getNodeStatus(notebook.id)}
+                    />
+                  ))
+                ) : (
+                  <Alert severity="info" variant="outlined">
+                    No lessons available yet.
+                  </Alert>
+                )}
+              </Stack>
+            </Paper>
+          </Grid>
+
+          {/* RIGHT PANEL: Interactive Graph */}
+          <Grid size={{ xs: 12, lg: 8 }}>
+            <Paper
+              variant="outlined"
+              sx={{
+                height: "600px",
+                borderRadius: 3,
+                overflow: "hidden",
+                position: "relative",
+                bgcolor: alpha(theme.palette.background.paper, 0.4),
+                borderColor: "divider",
+                boxShadow: theme.shadows[1],
+              }}
+            >
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 16,
+                  left: 20,
+                  zIndex: 10,
+                  pointerEvents: "none",
+                }}
+              >
+                <Typography
+                  variant="overline"
+                  fontWeight="bold"
+                  color="text.secondary"
+                >
+                  Topic Map
+                </Typography>
+              </Box>
+
+              <RoadmapGraph
+                nodes={nodes}
+                edges={initialTopicEdges}
+                onNodesChange={onNodesChange}
+                onNodeClick={(nodeId) => handleNodeClick(nodeId)}
+              />
+            </Paper>
+          </Grid>
+        </Grid>
+      </Box>
+    </Container>
   );
 }

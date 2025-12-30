@@ -29,8 +29,8 @@ const PROGRESS_STORAGE_KEY = "music-notebook-progress";
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
-  const { getUnlockOrder, topics, courses } = useCourseData();
-  const unlockOrder = useMemo(() => getUnlockOrder(), [getUnlockOrder]);
+  const { getUnlockOrder, getTopicByNotebookId, topics, courses } =
+    useCourseData();
   const [completedNodeIds, setCompletedNodeIds] = useState<
     readonly NotebookId[]
   >(() => {
@@ -60,9 +60,10 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     (nodeId: NotebookId): NodeStatus => {
       if (completedNodeIds.includes(nodeId)) return "completed";
 
+      const topic = getTopicByNotebookId(nodeId);
+      const unlockOrder = topic ? getUnlockOrder(topic.id) : [];
       const index = unlockOrder.indexOf(nodeId);
-      if (index === -1) return "unlocked";
-      if (index === 0) return "unlocked";
+      if (index <= 0) return "unlocked";
 
       const prevNodeId = unlockOrder[index - 1];
       if (prevNodeId !== undefined && completedNodeIds.includes(prevNodeId)) {
@@ -71,7 +72,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
       return "locked";
     },
-    [completedNodeIds, unlockOrder]
+    [completedNodeIds, getTopicByNotebookId, getUnlockOrder]
   );
 
   const completedTopicIds = useMemo<TopicId[]>(() => {

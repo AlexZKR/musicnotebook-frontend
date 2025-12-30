@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import {
   ReactFlow,
   MiniMap,
@@ -7,10 +7,10 @@ import {
   useEdgesState,
   type Node,
   type OnNodesChange,
+  type Edge,
 } from "@xyflow/react";
 import { alpha, Paper, useTheme } from "@mui/material";
 import NotebookNode from "~/ui/molecules/roadmap/NotebookNode";
-import { useCourseData } from "~/context/CourseContext";
 import type {
   NotebookId,
   NotebookNodeDefinition,
@@ -23,20 +23,25 @@ const NODE_TYPES = {
 
 export type RoadmapGraphProps = {
   nodes: Node<NotebookNodeDefinition>[];
+  edges: Edge[];
   onNodesChange: OnNodesChange<Node<NotebookNodeDefinition>>;
   onNodeClick: (nodeId: NotebookId, title: string) => void;
 };
 
 export default function RoadmapGraph({
   nodes,
+  edges,
   onNodesChange,
   onNodeClick,
 }: RoadmapGraphProps) {
   const theme = useTheme();
   const { mode } = useColorMode();
 
-  const { getGraphEdges } = useCourseData();
-  const [edges, , onEdgesChange] = useEdgesState(getGraphEdges());
+  const [flowEdges, setFlowEdges, onEdgesChange] = useEdgesState(edges);
+
+  useEffect(() => {
+    setFlowEdges(edges);
+  }, [edges, setFlowEdges]);
 
   const handleNodeClick = useCallback(
     (event: React.MouseEvent, node: Node<NotebookNodeDefinition>) => {
@@ -56,15 +61,16 @@ export default function RoadmapGraph({
         width: "100%",
         height: "80vh",
         borderRadius: { xs: 2, sm: 3 },
-        overflow: "hidden",
+        overflow: "visible",
         bgcolor: "background.default",
         position: "relative",
         boxShadow: "inset 0px 2px 4px rgba(0,0,0,0.06)",
       }}
     >
       <ReactFlow
+        style={{ width: "100%", height: "100%" }}
         nodes={nodes}
-        edges={edges}
+        edges={flowEdges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         nodeTypes={NODE_TYPES}
@@ -86,7 +92,6 @@ export default function RoadmapGraph({
         <MiniMap
           zoomable
           pannable
-          className="hidden sm:block"
           style={{
             backgroundColor: theme.palette.background.paper,
             borderRadius: theme.shape.borderRadius,
