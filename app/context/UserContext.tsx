@@ -16,6 +16,7 @@ type UserProgress = {
   completedTopicIds: readonly TopicId[];
   completedCourseIds: readonly CourseId[];
   markNodeCompleted: (nodeId: NotebookId) => void;
+  unmarkNodeCompleted: (nodeId: NotebookId) => void;
   getNodeStatus: (nodeId: NotebookId) => NodeStatus;
   isTopicCompleted: (topicId: TopicId) => boolean;
   isCourseCompleted: (courseId: CourseId) => boolean;
@@ -51,6 +52,15 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     setCompletedNodeIds((prev) => {
       if (prev.includes(nodeId)) return prev;
       const next = [...prev, nodeId];
+      localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
+  const unmarkNodeCompleted = useCallback((nodeId: NotebookId) => {
+    setCompletedNodeIds((prev) => {
+      if (!prev.includes(nodeId)) return prev;
+      const next = prev.filter((id) => id !== nodeId);
       localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(next));
       return next;
     });
@@ -126,6 +136,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         completedTopicIds,
         completedCourseIds,
         markNodeCompleted,
+        unmarkNodeCompleted,
         getNodeStatus,
         isTopicCompleted,
         isCourseCompleted,
@@ -136,6 +147,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       completedTopicIds,
       completedCourseIds,
       markNodeCompleted,
+      unmarkNodeCompleted,
       getNodeStatus,
       isTopicCompleted,
       isCourseCompleted,

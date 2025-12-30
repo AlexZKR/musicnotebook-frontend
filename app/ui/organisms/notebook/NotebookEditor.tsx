@@ -113,28 +113,6 @@ export function NotebookEditor({
               <NotebookTableOfContents blocks={blocks} />
             </Box>
 
-            {/* Mark as Done Action */}
-            {onComplete && (
-              <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 4 }}>
-                <Button
-                  variant="contained"
-                  color="success"
-                  startIcon={<CheckCircleIcon />}
-                  onClick={onComplete}
-                  sx={{
-                    borderRadius: "99px",
-                    fontWeight: "bold",
-                    px: 4,
-                    py: 1.5,
-                    boxShadow: (theme) =>
-                      `0 8px 16px ${theme.palette.success.light}40`,
-                  }}
-                >
-                  Mark as Done
-                </Button>
-              </Box>
-            )}
-
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}

@@ -1,29 +1,16 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { useNavigate, useParams } from "react-router";
-import confetti from "canvas-confetti";
-import {
-  Box,
-  Typography,
-  Button,
-  Breadcrumbs,
-  Container,
-  Stack,
-} from "@mui/material";
+import { Box, Typography, Button, Container, Stack } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 import type { Route } from "./+types/notebook";
 import { Notebook } from "~/ui/templates";
 
 import { useCourseData } from "~/context/CourseContext";
 import { useUserProgress } from "~/context/UserContext";
-import Link from "~/ui/atoms/Link";
+import { useConfetti } from "~/hooks/useConfetti";
 
-const CONFETTI_DURATION_MS = 2000;
-const CONFETTI_PARTICLE_COUNT = 3;
-const CONFETTI_SPREAD = 55;
-const CONFETTI_ANGLE_LEFT = 60;
-const CONFETTI_ANGLE_RIGHT = 120;
 const RETURN_ANIMATION_CLEAR_DELAY_MS = 3000;
 
 export function meta({ params }: Route.MetaArgs) {
@@ -39,7 +26,18 @@ export default function NotebookRoute() {
     ? null
     : getNotebook(numericNotebookId);
 
-  const { markNodeCompleted } = useUserProgress();
+  const { markNodeCompleted, unmarkNodeCompleted, getNodeStatus } =
+    useUserProgress();
+
+  const goBack = useCallback(() => {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      navigate(-1);
+      return;
+    }
+    navigate("/courses");
+  }, [navigate]);
+
+  const runConfetti = useConfetti();
 
   if (!notebook) {
     return (
@@ -51,42 +49,16 @@ export default function NotebookRoute() {
           The notebook you requested doesn’t exist.
         </Typography>
         <Button
-          component={Link}
-          to="/roadmap"
+          onClick={goBack}
           variant="contained"
           color="primary"
           startIcon={<ArrowBackIcon />}
         >
-          Back to Roadmap
+          Back
         </Button>
       </Container>
     );
   }
-
-  const runConfetti = () => {
-    const end = Date.now() + CONFETTI_DURATION_MS;
-
-    const frame = () => {
-      confetti({
-        particleCount: CONFETTI_PARTICLE_COUNT,
-        angle: CONFETTI_ANGLE_LEFT,
-        spread: CONFETTI_SPREAD,
-        origin: { x: 0 },
-        colors: ["#60a5fa", "#34d399", "#f472b6"],
-      });
-      confetti({
-        particleCount: CONFETTI_PARTICLE_COUNT,
-        angle: CONFETTI_ANGLE_RIGHT,
-        spread: CONFETTI_SPREAD,
-        origin: { x: 1 },
-        colors: ["#60a5fa", "#34d399", "#f472b6"],
-      });
-
-      if (Date.now() < end) requestAnimationFrame(frame);
-    };
-
-    frame();
-  };
 
   const handleComplete = () => {
     runConfetti();
@@ -96,11 +68,7 @@ export default function NotebookRoute() {
     }
 
     window.setTimeout(() => {
-      navigate("/roadmap", {
-        state: notebook.trackProgress
-          ? { justCompletedNotebookId: notebook.id }
-          : null,
-      });
+      goBack();
     }, RETURN_ANIMATION_CLEAR_DELAY_MS);
   };
 
@@ -121,37 +89,44 @@ export default function NotebookRoute() {
         spacing={2}
         sx={{ mb: 4, pb: 2, borderBottom: 1, borderColor: "divider" }}
       >
-        <Breadcrumbs
-          separator={<NavigateNextIcon fontSize="small" />}
-          aria-label="breadcrumb"
-        >
-          <Link to="/roadmap" color="inherit" underline="hover">
-            Roadmap
-          </Link>
-          <Typography
-            color="text.primary"
-            sx={{
-              fontWeight: "bold",
-              bgcolor: "action.selected",
-              px: 1,
-              py: 0.25,
-              borderRadius: 1,
-            }}
-          >
-            {notebook.title}
-          </Typography>
-        </Breadcrumbs>
+        <Typography variant="h5" fontWeight="bold">
+          {notebook.title}
+        </Typography>
 
-        <Button
-          component={Link}
-          to="/roadmap"
-          variant="text"
-          color="inherit"
-          startIcon={<ArrowBackIcon />}
-          sx={{ fontWeight: "medium" }}
-        >
-          Back to Roadmap
-        </Button>
+        <Stack direction="row" spacing={1} alignItems="center">
+          {notebook.trackProgress &&
+            getNodeStatus(notebook.id) !== "completed" && (
+              <Button
+                onClick={handleComplete}
+                variant="contained"
+                color="success"
+                startIcon={<CheckCircleIcon />}
+                sx={{ fontWeight: 700 }}
+              >
+                Mark as Done
+              </Button>
+            )}
+          {notebook.trackProgress &&
+            getNodeStatus(notebook.id) === "completed" && (
+              <Button
+                onClick={() => unmarkNodeCompleted(notebook.id)}
+                variant="outlined"
+                color="inherit"
+                sx={{ fontWeight: 700 }}
+              >
+                Mark as Not Done
+              </Button>
+            )}
+          <Button
+            onClick={goBack}
+            variant="text"
+            color="inherit"
+            startIcon={<ArrowBackIcon />}
+            sx={{ fontWeight: "medium" }}
+          >
+            Back
+          </Button>
+        </Stack>
       </Stack>
 
       <Notebook
