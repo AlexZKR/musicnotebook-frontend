@@ -1,117 +1,140 @@
-import { CheckCircleOutline } from "@mui/icons-material";
+import React from "react";
 import {
-  Alert,
-  AlertTitle,
   Container,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
   Stack,
   Typography,
+  Box,
+  Avatar,
+  Grid,
+  useTheme,
+  alpha,
 } from "@mui/material";
-import Banner from "~/ui/atoms/Banner";
-import Link from "~/ui/atoms/Link";
+import EditNoteIcon from "@mui/icons-material/EditNote";
+import ShareIcon from "@mui/icons-material/Share";
+import MusicNoteIcon from "@mui/icons-material/MusicNote";
 
 export function meta() {
   return [{ title: "About | Music Notebook" }];
 }
 
+type FeaturePointProps = {
+  icon: React.ReactNode;
+  title: string;
+  text: React.ReactNode;
+};
+
+function FeaturePoint({ icon, title, text }: FeaturePointProps) {
+  const theme = useTheme();
+  return (
+    <Box display="flex" gap={2}>
+      <Avatar
+        sx={{
+          bgcolor: alpha(theme.palette.primary.main, 0.1),
+          color: "primary.main",
+        }}
+      >
+        {icon}
+      </Avatar>
+      <Box>
+        <Typography variant="h6" fontWeight="bold" gutterBottom>
+          {title}
+        </Typography>
+        <Typography
+          variant="body1"
+          color="text.secondary"
+          sx={{ lineHeight: 1.7 }}
+        >
+          {text}
+        </Typography>
+      </Box>
+    </Box>
+  );
+}
+
 export default function AboutRoute() {
   return (
-    <Container maxWidth="md">
-      <Typography variant="h3" sx={{ marginBottom: 2 }}>
-        About Music Notebook
-      </Typography>
+    <Container maxWidth="md" sx={{ py: 8 }}>
+      <Stack spacing={8}>
+        {/* Header */}
+        <Box textAlign="center">
+          <Typography
+            variant="overline"
+            color="primary"
+            fontWeight="bold"
+            letterSpacing={1.5}
+          >
+            Our Mission
+          </Typography>
+          <Typography variant="h2" fontWeight="800" sx={{ mt: 1, mb: 3 }}>
+            Reclaiming Music Education
+          </Typography>
+          <Typography variant="h5" color="text.secondary" fontWeight="normal">
+            We believe that the best way to learn music isn&apos;t to passively
+            consume a video course. It&apos;s to actively{" "}
+            <strong>build your own textbook</strong>.
+          </Typography>
+        </Box>
 
-      <Stack spacing={3}>
-        <Typography>
-          Music Notebook is a Proof-of-Concept (POC) application designed to
-          reimagine how we learn music theory. Traditional learning methods
-          often separate <em>theory</em> (textbooks) from <em>practice</em>{" "}
-          (instruments). We combine them into{" "}
-          <strong>interactive documents</strong>.
-        </Typography>
+        {/* Main Content Grid */}
+        <Grid container spacing={6}>
+          <Grid size={{ xs: 12 }}>
+            <FeaturePoint
+              icon={<EditNoteIcon />}
+              title="Active Learning over Passive Watching"
+              text={
+                <>
+                  Most platforms sell you a course from an expert. You watch it,
+                  nod your head, and forget it a week later.{" "}
+                  <strong>Music Notebook</strong> is different. It&apos;s a
+                  place for <em>you</em> to take notes. When you write down a
+                  concept and create a musical example for it yourself, you own
+                  that knowledge forever.
+                </>
+              }
+            />
+          </Grid>
 
-        <Alert
-          severity="warning"
-          icon={<span style={{ fontSize: "1.25rem" }}>🎓</span>}
+          <Grid size={{ xs: 12 }}>
+            <FeaturePoint
+              icon={<MusicNoteIcon />}
+              title="A Songbook That Teaches You"
+              text={
+                <>
+                  Traditional songbooks are just chords on a page. Ours are
+                  interactive documents. Found a song with a weird chord? Link
+                  that measure directly to your &quot;Secondary Dominants&quot;
+                  theory notebook. Connect the <em>Practice</em> of playing to
+                  the <em>Theory</em> of understanding.
+                </>
+              }
+            />
+          </Grid>
+
+          <Grid size={{ xs: 12 }}>
+            <FeaturePoint
+              icon={<ShareIcon />}
+              title="Shareable Knowledge"
+              text="Once you've built a great explanation or a perfect practice guide for a song, share it. Clone notebooks from others, improve them, and contribute back to the community."
+            />
+          </Grid>
+        </Grid>
+
+        {/* Closing */}
+        <Box
           sx={{
-            alignItems: "flex-start",
-            "& .MuiAlert-message": { width: "100%" },
+            p: 4,
+            borderRadius: 4,
+            bgcolor: "background.paper",
+            border: "1px dashed",
+            borderColor: "divider",
+            textAlign: "center",
           }}
         >
-          <AlertTitle sx={{ fontWeight: "bold" }}>
-            Just getting started?
-          </AlertTitle>
-          Check out our{" "}
-          <Link
-            to="/notebook/tutorial"
-            color="inherit"
-            underline="always"
-            sx={{ fontWeight: "bold" }}
-          >
-            Interactive Tutorial
-          </Link>{" "}
-          to see the features in action before diving into the main curriculum.
-        </Alert>
-
-        <Typography>
-          This app uses <strong>ABC Notation</strong> for rendering music.
-          It&apos;s a simple, text-based format for music notation. While you
-          don&apos;t need to be an expert, knowing the basics helps you create
-          your own exercises.{" "}
-          <Link
-            to="/notebook/tutorial"
-            color="inherit"
-            underline="always"
-            sx={{ fontWeight: "bold" }}
-          >
-            Learn ABC Notation Basics in the Tutorial
-          </Link>
-          . For more advanced documentation, visit the{" "}
-          <Link
-            to="https://abcnotation.com"
-            color="inherit"
-            underline="always"
-            sx={{ fontWeight: "bold" }}
-          >
-            ABC Notation website
-          </Link>
-          .
-        </Typography>
-
-        <Typography variant="h4" sx={{ marginBottom: 1 }}>
-          Features
-        </Typography>
-
-        <Typography>
-          Inspired by developer tools like Jupyter Notebooks, our platform
-          allows you to:
-        </Typography>
-
-        <List sx={{ pl: 0 }}>
-          {[
-            "Read explanations alongside the music notation.",
-            <>
-              <strong>Edit musical notation</strong> in real-time and hear the
-              results immediately using our audio engine.
-            </>,
-            "Visualize concepts through a connected knowledge graph (Roadmap).",
-          ].map((text, index) => (
-            <ListItem key={index} alignItems="flex-start" sx={{ px: 1, py: 0 }}>
-              <ListItemIcon sx={{ minWidth: 30 }}>
-                <CheckCircleOutline fontSize="inherit" />
-              </ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItem>
-          ))}
-        </List>
-
-        <Banner
-          title="Current Status"
-          description="This project is currently in active development. Features like user accounts, progress tracking, and community-shared lessons are coming soon!"
-        />
+          <Typography variant="body1" fontStyle="italic" color="text.secondary">
+            &quot;Music theory is not a set of rules. It is a set of
+            tools.&quot;
+          </Typography>
+        </Box>
       </Stack>
     </Container>
   );
