@@ -15,7 +15,7 @@ import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import type { Route } from "./+types/notebook";
 import { Notebook } from "~/ui/templates";
 
-import { useRoadmapData } from "~/context/RoadmapDataContext";
+import { useCourseData } from "~/context/CourseContext";
 import { useUserProgress } from "~/context/UserContext";
 import Link from "~/ui/atoms/Link";
 
@@ -33,8 +33,11 @@ export function meta({ params }: Route.MetaArgs) {
 export default function NotebookRoute() {
   const navigate = useNavigate();
   const { notebookId = "" } = useParams();
-  const { getNotebook } = useRoadmapData();
-  const notebook = getNotebook(notebookId);
+  const numericNotebookId = Number(notebookId);
+  const { getNotebook } = useCourseData();
+  const notebook = Number.isNaN(numericNotebookId)
+    ? null
+    : getNotebook(numericNotebookId);
 
   const { markNodeCompleted } = useUserProgress();
 

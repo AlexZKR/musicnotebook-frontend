@@ -9,19 +9,22 @@ import {
   type OnNodesChange,
 } from "@xyflow/react";
 import { alpha, Paper, useTheme } from "@mui/material";
-import TopicNode from "~/ui/molecules/TopicNode";
-import { useRoadmapData } from "~/context/RoadmapDataContext";
-import type { TopicData } from "~/features/roadmap/model/topic";
+import NotebookNode from "~/ui/molecules/roadmap/NotebookNode";
+import { useCourseData } from "~/context/CourseContext";
+import type {
+  NotebookId,
+  NotebookNodeDefinition,
+} from "~/features/roadmap/model/notebook";
 import { useColorMode } from "~/context/ThemeContext";
 
 const NODE_TYPES = {
-  topic: TopicNode,
+  notebook: NotebookNode,
 };
 
 export type RoadmapGraphProps = {
-  nodes: Node<TopicData>[];
-  onNodesChange: OnNodesChange<Node<TopicData>>;
-  onNodeClick: (nodeId: string, title: string) => void;
+  nodes: Node<NotebookNodeDefinition>[];
+  onNodesChange: OnNodesChange<Node<NotebookNodeDefinition>>;
+  onNodeClick: (nodeId: NotebookId, title: string) => void;
 };
 
 export default function RoadmapGraph({
@@ -32,15 +35,15 @@ export default function RoadmapGraph({
   const theme = useTheme();
   const { mode } = useColorMode();
 
-  const { edgesInitial } = useRoadmapData();
-  const [edges, , onEdgesChange] = useEdgesState(edgesInitial);
+  const { getGraphEdges } = useCourseData();
+  const [edges, , onEdgesChange] = useEdgesState(getGraphEdges());
 
   const handleNodeClick = useCallback(
-    (event: React.MouseEvent, node: Node) => {
-      const topicData = node.data as TopicData;
+    (event: React.MouseEvent, node: Node<NotebookNodeDefinition>) => {
+      const notebookData = node.data;
 
-      if (topicData.status !== "locked") {
-        onNodeClick(node.id, topicData.title);
+      if (notebookData.status !== "locked") {
+        onNodeClick(notebookData.id, notebookData.title);
       }
     },
     [onNodeClick]

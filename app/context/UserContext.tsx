@@ -5,14 +5,19 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { useRoadmapData } from "~/context/RoadmapDataContext";
-
-type NodeStatus = "locked" | "unlocked" | "completed";
+import { useCourseData } from "~/context/CourseContext";
+import type { CourseId } from "~/features/roadmap/model/course";
+import type { NodeStatus, NotebookId } from "~/features/roadmap/model/notebook";
+import type { TopicId } from "~/features/roadmap/model/topic";
 
 type UserProgress = {
-  completedNodeIds: string[];
-  markNodeCompleted: (nodeId: string) => void;
-  getNodeStatus: (nodeId: string) => NodeStatus;
+  completedNodeIds: readonly NotebookId[];
+  completedTopicIds: readonly TopicId[];
+  completedCourseIds: readonly CourseId[];
+  markNodeCompleted: (nodeId: NotebookId) => void;
+  getNodeStatus: (nodeId: NotebookId) => NodeStatus;
+  isTopicCompleted: (topicId: TopicId) => boolean;
+  isCourseCompleted: (courseId: CourseId) => boolean;
 };
 
 type UserContextType = {
@@ -24,8 +29,11 @@ const PROGRESS_STORAGE_KEY = "music-notebook-progress";
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
-  const { unlockOrder } = useRoadmapData();
-  const [completedNodeIds, setCompletedNodeIds] = useState<string[]>(() => {
+  const { getUnlockOrder, topics, courses } = useCourseData();
+  const unlockOrder = useMemo(() => getUnlockOrder(), [getUnlockOrder]);
+  const [completedNodeIds, setCompletedNodeIds] = useState<
+    readonly NotebookId[]
+  >(() => {
     if (typeof window === "undefined") return [];
     const saved = localStorage.getItem(PROGRESS_STORAGE_KEY);
     if (saved) {
@@ -38,7 +46,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     return [];
   });
 
-  const markNodeCompleted = useCallback((nodeId: string) => {
+  const markNodeCompleted = useCallback((nodeId: NotebookId) => {
     setCompletedNodeIds((prev) => {
       if (prev.includes(nodeId)) return prev;
       const next = [...prev, nodeId];
@@ -48,7 +56,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const getNodeStatus = useCallback(
-    (nodeId: string): NodeStatus => {
+    (nodeId: NotebookId): NodeStatus => {
       if (completedNodeIds.includes(nodeId)) return "completed";
 
       const index = unlockOrder.indexOf(nodeId);
@@ -56,10 +64,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       if (index === 0) return "unlocked";
 
       const prevNodeId = unlockOrder[index - 1];
-      if (
-        typeof prevNodeId === "string" &&
-        completedNodeIds.includes(prevNodeId)
-      ) {
+      if (prevNodeId !== undefined && completedNodeIds.includes(prevNodeId)) {
         return "unlocked";
       }
 
@@ -68,15 +73,69 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     [completedNodeIds, unlockOrder]
   );
 
+  const completedTopicIds = useMemo<TopicId[]>(() => {
+    if (topics.length === 0) return [];
+    const completedNotebookSet = new Set<NotebookId>(completedNodeIds);
+    return topics
+      .filter((topic) =>
+        topic.notebookOrder.every((notebookId) =>
+          completedNotebookSet.has(notebookId)
+        )
+      )
+      .map((topic) => topic.id);
+  }, [completedNodeIds, topics]);
+
+  const completedTopicSet = useMemo(
+    () => new Set(completedTopicIds),
+    [completedTopicIds]
+  );
+
+  const completedCourseIds = useMemo<CourseId[]>(
+    () =>
+      courses
+        .filter((course) =>
+          course.topicOrder.every((topicId) => completedTopicSet.has(topicId))
+        )
+        .map((course) => course.id),
+    [completedTopicSet, courses]
+  );
+
+  const completedCourseSet = useMemo(
+    () => new Set(completedCourseIds),
+    [completedCourseIds]
+  );
+
+  const isTopicCompleted = useCallback(
+    (topicId: TopicId) => completedTopicSet.has(topicId),
+    [completedTopicSet]
+  );
+
+  const isCourseCompleted = useCallback(
+    (courseId: CourseId) => completedCourseSet.has(courseId),
+    [completedCourseSet]
+  );
+
   const value = useMemo<UserContextType>(
     () => ({
       progress: {
         completedNodeIds,
+        completedTopicIds,
+        completedCourseIds,
         markNodeCompleted,
         getNodeStatus,
+        isTopicCompleted,
+        isCourseCompleted,
       },
     }),
-    [completedNodeIds, markNodeCompleted, getNodeStatus]
+    [
+      completedNodeIds,
+      completedTopicIds,
+      completedCourseIds,
+      markNodeCompleted,
+      getNodeStatus,
+      isTopicCompleted,
+      isCourseCompleted,
+    ]
   );
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

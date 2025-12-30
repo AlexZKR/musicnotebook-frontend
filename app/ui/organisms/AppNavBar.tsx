@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { NavLink } from "react-router";
-import { Logo } from "~/ui/molecules/Logo";
+import { Logo } from "~/ui/atoms/Logo";
 import MenuIcon from "@mui/icons-material/Menu";
 import { ThemeToggle, NavButton } from "~/ui/atoms";
 import {

@@ -1,57 +1,59 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { useNodesState, type Node } from "@xyflow/react";
 
 import RoadmapGraph from "~/ui/organisms/RoadmapGraph";
+import { useCourseData } from "~/context/CourseContext";
 import { useUserProgress } from "~/context/UserContext";
-import { useRoadmapData } from "~/context/RoadmapDataContext";
-import type { TopicData } from "~/features/roadmap/model/topic";
+import type {
+  NotebookId,
+  NotebookNodeDefinition,
+} from "~/features/roadmap/model/notebook";
 import { Paper, Stack, Typography } from "@mui/material";
 import Banner from "~/ui/atoms/Banner";
 
 const JUST_COMPLETED_CLEAR_DELAY_MS = 3000;
 
-type RoadmapLocationState = {
-  justCompletedNotebookId?: string;
+type TopicLocationState = {
+  justCompletedNotebookId?: NotebookId;
 } | null;
 
 export function meta() {
-  return [{ title: "Roadmap | Music Notebook" }];
+  return [{ title: "Topic | Music Notebook" }];
 }
 
-export default function RoadmapRoute() {
+export default function TopicRoute() {
   const navigate = useNavigate();
   const location = useLocation();
-  const locationState = location.state as RoadmapLocationState;
+  const locationState = location.state as TopicLocationState;
 
   const { completedNodeIds, getNodeStatus } = useUserProgress();
-  const { nodesInitial } = useRoadmapData();
+  const { getGraphNodes } = useCourseData();
+  const topicNodes = useMemo(() => getGraphNodes(), [getGraphNodes]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(
-    nodesInitial as Node<TopicData>[]
+    topicNodes as Node<NotebookNodeDefinition>[]
   );
 
-  // Sync node statuses from UserContext progress.
   useEffect(() => {
     setNodes((nds) =>
       nds.map((node) => ({
         ...node,
         data: {
           ...node.data,
-          status: getNodeStatus(node.id),
+          status: getNodeStatus(node.data.id),
         },
       }))
     );
   }, [completedNodeIds, getNodeStatus, setNodes]);
 
-  // Animate the node that was just completed (when we return from notebook).
   useEffect(() => {
     const justCompletedNotebookId = locationState?.justCompletedNotebookId;
     if (!justCompletedNotebookId) return;
 
     setNodes((nds) =>
       nds.map((node) => {
-        if (node.id !== justCompletedNotebookId) return node;
+        if (node.data.id !== justCompletedNotebookId) return node;
         return {
           ...node,
           data: {
@@ -63,13 +65,12 @@ export default function RoadmapRoute() {
       })
     );
 
-    // Clear history state so refresh/back doesn't re-trigger.
     navigate(".", { replace: true, state: null });
 
     const timeoutId = window.setTimeout(() => {
       setNodes((nds) =>
         nds.map((node) => {
-          if (node.id !== justCompletedNotebookId) return node;
+          if (node.data.id !== justCompletedNotebookId) return node;
           const { justCompleted: _, ...rest } = node.data;
           return { ...node, data: rest };
         })
@@ -79,7 +80,7 @@ export default function RoadmapRoute() {
     return () => window.clearTimeout(timeoutId);
   }, [locationState?.justCompletedNotebookId, navigate, setNodes]);
 
-  const handleNodeClick = (nodeId: string) => {
+  const handleNodeClick = (nodeId: NotebookId) => {
     navigate(`/notebook/${nodeId}`);
   };
 

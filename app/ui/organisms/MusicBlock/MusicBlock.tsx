@@ -14,8 +14,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import DragIcon from "@mui/icons-material/OpenWith";
 import DragOffIcon from "@mui/icons-material/PanToolAltOutlined";
 
-import { NoteInfoDisplay } from "~/ui/molecules/NoteInfoDisplay";
-import { NotebookBlock } from "~/ui/molecules/NotebookBlock";
+import { NoteInfoDisplay } from "~/ui/molecules/notebook/NoteInfoDisplay";
+import { NotebookBlock } from "~/ui/molecules/notebook/NotebookBlock";
 import { useAbcJs } from "./useAbcJs";
 import { useColorMode } from "~/context/ThemeContext";
 import { buildAbcJsStyles } from "./abcjsAudioStyles";

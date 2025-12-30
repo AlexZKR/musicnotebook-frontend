@@ -1,8 +1,8 @@
 // Atomic Design: Molecules barrel export
-export { default as TopicNode } from "./TopicNode";
-export * from "./NotebookBlock";
-export * from "./NotebookTableOfContents";
-export * from "./NotebookToolbar";
-export * from "./NoteInfoDisplay";
-export * from "./Logo";
-export * from "./BlockSideControls";
+export { default as TopicNode } from "./roadmap/NotebookNode";
+export * from "./notebook/NotebookBlock";
+export * from "./notebook/NotebookTableOfContents";
+export * from "./notebook/NotebookToolbar";
+export * from "./notebook/NoteInfoDisplay";
+export * from "../atoms/Logo";
+export * from "./notebook/BlockSideControls";

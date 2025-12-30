@@ -1,5 +1,5 @@
 import React from "react";
-import { Link as RouterLink } from "react-router";
+import { Link } from "react-router";
 import {
   Box,
   Button,
@@ -68,17 +68,17 @@ export default function IndexRoute() {
         {/* 4. The Action Buttons */}
         <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
           <Button
-            component={RouterLink}
-            to="/roadmap"
+            component={Link}
+            to="/courses"
             variant="contained"
             size="large"
             endIcon={<ArrowForwardIcon />}
             sx={{ px: 4, py: 1.5, fontSize: "1.1rem" }}
           >
-            Start Roadmap
+            See Courses
           </Button>
           <Button
-            component={RouterLink}
+            component={Link}
             to="/about"
             variant="outlined"
             size="large"

@@ -19,8 +19,8 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 import type { BlockData, BlockType } from "~/features/notebook/model/block";
 import { MusicBlock, TextBlock } from "~/ui/organisms";
-import { NotebookTableOfContents } from "~/ui/molecules/NotebookTableOfContents";
-import { NotebookToolbar } from "~/ui/molecules/NotebookToolbar";
+import { NotebookTableOfContents } from "~/ui/molecules/notebook/NotebookTableOfContents";
+import { NotebookToolbar } from "~/ui/molecules/notebook/NotebookToolbar";
 
 interface NotebookEditorProps {
   initialBlocks: BlockData[];

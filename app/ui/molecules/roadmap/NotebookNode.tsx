@@ -1,12 +1,15 @@
 import React from "react";
-import { Handle, Position, type Node, type NodeProps } from "@xyflow/react";
+import { Handle, Position } from "@xyflow/react";
 import { Box, Typography, useTheme, alpha } from "@mui/material"; // Added MUI imports
-import type { TopicData } from "~/features/roadmap/model/topic";
+import type { NotebookNodeDefinition } from "~/features/roadmap/model/notebook";
 
-export default function TopicNode({
+export default function NotebookNode({
   data,
   isConnectable,
-}: NodeProps<Node<TopicData>>) {
+}: {
+  data: NotebookNodeDefinition;
+  isConnectable: boolean;
+}) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
