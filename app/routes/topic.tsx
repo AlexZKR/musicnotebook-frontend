@@ -2,12 +2,12 @@ import React, { useEffect, useMemo } from "react";
 import { useParams, Navigate, useNavigate } from "react-router";
 import {
   Container,
-  Stack,
   Box,
   Typography,
   Alert,
   Grid,
   Paper,
+  Collapse,
   alpha,
   useTheme,
 } from "@mui/material";
@@ -16,11 +16,12 @@ import { useNodesState, type Node } from "@xyflow/react";
 import { useCourseData } from "~/context/CourseContext";
 import { useUserProgress } from "~/context/UserContext";
 import { TopicHeader } from "~/ui/organisms";
-import { NotebookListItem } from "~/ui/molecules";
+import { NotebookListItem, HideableCompletionList } from "~/ui/molecules";
 import TopicGraph from "~/ui/organisms/topic/TopicGraph";
 
 import type {
   Notebook,
+  NotebookId,
   NotebookNodeDefinition,
 } from "~/features/roadmap/model/notebook";
 
@@ -64,6 +65,11 @@ export default function TopicRoute() {
       .map((notebookId) => getNotebook(notebookId))
       .filter((n): n is Notebook => n !== null);
   }, [topic, getNotebook]);
+
+  const completedSet = useMemo(
+    () => new Set<NotebookId>(completedNodeIds),
+    [completedNodeIds]
+  );
 
   // 3. Resolve Graph Nodes (Graph Data)
   // Filter the global node list to only show nodes belonging to this topic
@@ -149,22 +155,36 @@ export default function TopicRoute() {
                 </Typography>
               </Box>
 
-              <Stack spacing={2}>
-                {notebooks.length > 0 ? (
-                  notebooks.map((notebook, index) => (
+              <HideableCompletionList
+                items={notebooks}
+                isItemCompleted={(notebook) => completedSet.has(notebook.id)}
+                showToggle={completedSet.size > 0}
+                spacing={2}
+                emptyState={({ itemCount, hideCompleted }) =>
+                  itemCount === 0 ? (
+                    <Alert severity="info" variant="outlined">
+                      No lessons available yet.
+                    </Alert>
+                  ) : hideCompleted ? (
+                    <Alert severity="info" variant="outlined">
+                      All lessons are completed and hidden.
+                    </Alert>
+                  ) : (
+                    <Alert severity="info" variant="outlined">
+                      No lessons match the current filter.
+                    </Alert>
+                  )
+                }
+                renderItem={(notebook, meta) => (
+                  <Collapse key={notebook.id} in={!meta.isHidden} unmountOnExit>
                     <NotebookListItem
-                      key={notebook.id}
                       notebook={notebook}
-                      index={index}
+                      index={meta.originalIndex}
                       status={getNodeStatus(notebook.id)}
                     />
-                  ))
-                ) : (
-                  <Alert severity="info" variant="outlined">
-                    No lessons available yet.
-                  </Alert>
+                  </Collapse>
                 )}
-              </Stack>
+              />
             </Paper>
           </Grid>
 

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useParams, Link as RouterLink } from "react-router";
 import {
   Container,
@@ -13,9 +13,8 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 import { useCourseData } from "~/context/CourseContext";
 import { CourseHeader } from "~/ui/organisms";
-import { TopicListItem } from "~/ui/molecules";
+import { TopicListItem, HideableCompletionList } from "~/ui/molecules";
 import { useUserProgress } from "~/context/UserContext";
-import { HideCompletedToggle } from "~/ui/atoms";
 
 export function meta({ params }: { params: { courseId: string } }) {
   return [{ title: `Course ${params.courseId} | Music Notebook` }];
@@ -25,9 +24,6 @@ export default function CourseRoute() {
   const { courseId } = useParams();
   const { getCourse, getTopics } = useCourseData();
   const { completedNodeIds, isTopicCompleted } = useUserProgress();
-
-  // State for toggling completed topics
-  const [hideCompleted, setHideCompleted] = useState(false);
 
   // Convert string param to number ID
   const id = parseInt(courseId || "", 10);
@@ -54,6 +50,16 @@ export default function CourseRoute() {
     });
     return { total, completed };
   }, [topics, completedSet]);
+
+  const hasCompletedTopics = useMemo(
+    () => topics.some((topic) => isTopicCompleted(topic.id)),
+    [isTopicCompleted, topics]
+  );
+
+  const isCourseFullyCompleted = useMemo(
+    () => stats.total > 0 && stats.completed === stats.total,
+    [stats]
+  );
 
   if (!course) {
     return (
@@ -122,75 +128,46 @@ export default function CourseRoute() {
             </Box>
           </Box>
 
-          {(() => {
-            const completedTopicCount = topics.filter((topic) =>
-              isTopicCompleted(topic.id)
-            ).length;
-
-            if (
-              completedTopicCount === 0 ||
-              (stats.total > 0 && stats.completed === stats.total)
-            )
-              return null;
-
-            return (
-              <HideCompletedToggle
-                checked={hideCompleted}
-                onChange={setHideCompleted}
-                hiddenCount={completedTopicCount}
-                showHiddenCount={
-                  hideCompleted &&
-                  !(stats.total > 0 && stats.completed === stats.total)
-                }
-              />
-            );
-          })()}
+          <Box />
         </Box>
 
         {/* Topics List */}
         <Stack spacing={2} pb={12}>
-          {topics.map((topic, index) => {
-            const isCompleted = isTopicCompleted(topic.id);
-            const total = topic.notebookOrder.length;
-            const completed = topic.notebookOrder.filter((id) =>
-              completedSet.has(id)
-            ).length;
-
-            // Determine if we should show this item
-            const isVisible = !hideCompleted || !isCompleted;
-
-            return (
-              <Collapse key={topic.id} in={isVisible} unmountOnExit>
-                <TopicListItem
-                  topic={topic}
-                  courseId={course.id}
-                  index={index}
-                  totalNotebooks={total}
-                  completedNotebooks={completed}
-                />
-              </Collapse>
-            );
-          })}
-
-          {topics.length === 0 && (
-            <Typography color="text.secondary" fontStyle="italic">
-              No topics have been added to this course yet.
-            </Typography>
-          )}
-
-          {/* Empty State when everything is hidden */}
-          {hideCompleted &&
-            topics.every((t) => isTopicCompleted(t.id)) &&
-            topics.length > 0 && (
-              <Box py={4} textAlign="center">
-                <Typography color="text.secondary">
+          <HideableCompletionList
+            items={topics}
+            isItemCompleted={(topic) => isTopicCompleted(topic.id)}
+            showToggle={hasCompletedTopics && !isCourseFullyCompleted}
+            spacing={2}
+            emptyState={({ hideCompleted: isHidden }) =>
+              isHidden ? (
+                <Typography color="text.secondary" fontStyle="italic">
                   All topics are completed and hidden.
                 </Typography>
-                <Button onClick={() => setHideCompleted(false)} sx={{ mt: 1 }}>
-                  Show completed topics
-                </Button>
-              </Box>
-            )}
+              ) : (
+                <Typography color="text.secondary" fontStyle="italic">
+                  No topics have been added to this course yet.
+                </Typography>
+              )
+            }
+            renderItem={(topic, meta) => {
+              const total = topic.notebookOrder.length;
+              const completed = topic.notebookOrder.filter((id) =>
+                completedSet.has(id)
+              ).length;
+
+              return (
+                <Collapse key={topic.id} in={!meta.isHidden} unmountOnExit>
+                  <TopicListItem
+                    topic={topic}
+                    courseId={course.id}
+                    index={meta.originalIndex}
+                    totalNotebooks={total}
+                    completedNotebooks={completed}
+                  />
+                </Collapse>
+              );
+            }}
+          />
         </Stack>
       </Container>
     </Box>
