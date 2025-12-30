@@ -15,8 +15,9 @@ import { useNodesState, type Node } from "@xyflow/react";
 
 import { useCourseData } from "~/context/CourseContext";
 import { useUserProgress } from "~/context/UserContext";
-import { TopicHeader, RoadmapGraph } from "~/ui/organisms";
+import { TopicHeader } from "~/ui/organisms";
 import { NotebookListItem } from "~/ui/molecules";
+import TopicGraph from "~/ui/organisms/topic/TopicGraph";
 
 import type {
   Notebook,
@@ -199,7 +200,7 @@ export default function TopicRoute() {
                 </Typography>
               </Box>
 
-              <RoadmapGraph
+              <TopicGraph
                 nodes={nodes}
                 edges={initialTopicEdges}
                 onNodesChange={onNodesChange}
